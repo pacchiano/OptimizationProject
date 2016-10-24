@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+
+
+
+\title{EE227BT Project:
+Understanding the Continuous-Time Limit of Nesterov Acceleration}
+\author{Nilesh Tripuraneni (nilesh\_tripuraneni@berkeley.edu, 3032089919)\\ Sarah Dean (sarahdean@eecs.berkeley.edu, 3031893242)\\ Jeffrey Chan (chanjed@berkeley.edu, 24988067)\\ Aldo Pacchiano (pacchiano@berkeley.edu, 26995108)}
+\date{October 25, 2016}
+\begin{document}
+\maketitle
+
+
+\section{Project}
+
+This project will focus on understanding recent approaches to study the continuous-time limit of ``accelerated'' optimization algorithms \cite{su2014differential, wibisono2016variational, krichene2015accelerated}. After
+the literature review we will hopefully be able to experiment with deriving different optimizers (using different numerical discretization schemes) of the continuous-time formulations.
+
+\section{Background}
+% Gradient descent update
+First order methods for solving convex optimization problems in the form
+\[\min f(x)\]
+are popular for large data sets and problems common in fields like machine learning and compressed sensing. Gradient descent is a common such method, dating back to Euler and Lagrange. It takes the form of an update rule
+\[x_{k+1} = x_k - s \nabla f(x_k)\]
+
+
+% Nesterov's acceleration
+Nesterov's acceleration gradient method is a first-order gradient method which may take the following form: starting with $x_0$ and $y_0 = x_0$ inductively define
+
+\begin{align}
+    x_k = y_{k-1} - s \nabla f(y_{k-1})\\
+    y_k = x_k + \frac{k-1}{k+2} (x_k - x_{k-1})
+\end{align}
+
+For any fixed step size $s \leq \frac{1}{L}$ where $L$ is the Lipschitz constant of $\nabla f$, it has a convergence rate of:
+ 
+\begin{equation}
+f(x_k) - f^* \leq O \left(\frac{\|x_0 - x^*\|^2}{sk^2} \right)
+\end{equation}
+which is optimal among first order methods (cite wherever this was shown -- Nesterov, 2004)
+
+% - notable applications can be found in sparse linear regression, compressed sensing, and deep/recurrent neural networks
+
+%- Similar first order methods in non-Euclidean spaces
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+
+
+
+
+\end{document}
