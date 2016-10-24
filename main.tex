@@ -22,17 +22,14 @@ the literature review we will hopefully be able to experiment with deriving diff
 % Gradient descent update
 First order methods for solving convex optimization problems in the form
 \[\min f(x)\]
-are popular for large data sets and problems common in fields like machine learning and compressed sensing. Gradient descent is a common such method, dating back to Euler and Lagrange. It takes the form of an update rule
+are popular for large data sets and problems. Gradient descent is a common such method, dating back to Euler and Lagrange. It takes the form of an update rule
 \[x_{k+1} = x_k - s \nabla f(x_k)\]
+starting from an initial point $x_0$. Nesterov proposed an accelerated gradient method  (cite original Nesterov paper 1983), which takes the following form: starting with $x_0$ and $y_0 = x_0$ inductively define
 
-
-% Nesterov's acceleration
-Nesterov's acceleration gradient method is a first-order gradient method which may take the following form: starting with $x_0$ and $y_0 = x_0$ inductively define
-
-\begin{align}
-    x_k = y_{k-1} - s \nabla f(y_{k-1})\\
-    y_k = x_k + \frac{k-1}{k+2} (x_k - x_{k-1})
-\end{align}
+\begin{align*}
+    x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}).
+\end{align*}
 
 For any fixed step size $s \leq \frac{1}{L}$ where $L$ is the Lipschitz constant of $\nabla f$, it has a convergence rate of:
  
@@ -41,7 +38,7 @@ f(x_k) - f^* \leq O \left(\frac{\|x_0 - x^*\|^2}{sk^2} \right)
 \end{equation}
 which is optimal among first order methods (cite wherever this was shown -- Nesterov, 2004)
 
-% - notable applications can be found in sparse linear regression, compressed sensing, and deep/recurrent neural networks
+This accelerate are notable applications in sparse linear regression, compressed sensing, and deep/recurrent neural networks (cite?).
 
 %- Similar first order methods in non-Euclidean spaces
 
