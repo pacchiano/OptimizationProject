@@ -4,13 +4,13 @@ import math
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-def Nesterov_ODE(X_0, nabla_f=None):
+def Nesterov_ODE(X_0, t=300.0, nabla_f=None):
     # We order such \dot{X} is first and \dot{Y} is second
 
     dim = X_0.shape[0]
     S_0 = np.hstack((X_0,  np.zeros(dim)))
 
-    def dS_dt(S, t, r=1.0):
+    def dS_dt(S, t, r=3.0):
 
         X = S[:dim]
         Y = S[dim:]
@@ -24,13 +24,32 @@ def Nesterov_ODE(X_0, nabla_f=None):
 
         return dS
 
-    t_min = 0.00001
-    t_max = 300
+    t_min = 0.0001
+    t_max = t_min + t
     num_pts = 10000
     t = np.linspace(t_min, t_max, num_pts)
     Ss = odeint(dS_dt, S_0, t)
 
     return t, Ss
+
+def Nesterov_GD(X_0, s=0.001, t=300.0, nabla_f=None):
+
+    k = int(t/np.power(s, .5)) # t=k \sqrt{s}
+    print k
+    dim = X_0.shape[0]
+
+    X = np.zeros((k, dim))
+    Y = np.zeros((k, dim))
+
+    Y_0 = X_0
+    X[0, :] = X_0
+    Y[0, :] = Y_0
+
+    for k in xrange(1, k):
+        X[k, :] = Y[k-1, :] - s*nabla_f(Y[k-1, :])
+        Y[k, :] = X[k, :] + (k-1)/(k+2)*(X[k, :] - X[k-1, :])
+
+    return X, Y
 
 def plot_traj(Xs, show=False, save=False, path=None):
 
@@ -66,19 +85,26 @@ def grad_f_quad(X):
 
     return np.array([.04*X[0], .01*X[1]])
 
-def main():
+def run_ODE():
 
     X_0 = np.array([1.0, 1.0])
     dim = X_0.shape[0]
     t, Ss = Nesterov_ODE(X_0, nabla_f=grad_f_quad)
-
     Xs = Ss[:,:dim]
     plot_errors(t, Xs, show=True, save=True, path="./quadratic_errors.eps")
     plot_traj(Xs, show=True, save=True, path="./quadratic_traj.eps")
-    #plt.plot(t, errors)
-    #plt.show()
 
-    #plot(t, Ss)
+def run_GD():
+
+    X_0 = np.array([1.0, 1.0])
+    dim = X_0.shape[0]
+    X, Y = Nesterov_GD(X_0, s=10.0, t=3000.0, nabla_f=grad_f_quad)
+    #plot_errors(t, Y, show=True, save=False, path="./quadratic_errors.eps")
+    plot_traj(Y, show=True, save=False, path="./quadratic_traj.eps")
+
+def main():
+
+    run_GD()
 
 if __name__ == "__main__":
     main()
