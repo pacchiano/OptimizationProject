@@ -1,0 +1,93 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\newtheorem{theorem}{Theorem}
+
+
+\title{EE227BT Project:
+Notes}
+\author{Nilesh Tripuraneni}
+\begin{document}
+\maketitle
+
+
+\section{Summary: Candes Paper}
+\subsection{Informal Derivation of the Gradient Descent ODE}
+We first consider the discrete-time gradient descent updates for the $L$-smooth and $\alpha$-strongly convex function $f$:
+\begin{align*}
+    x_{k+1} = x_k - s \nabla f(x_k) 
+\end{align*}
+In order to derive the continuous-time limit of this equation, we simply rescale by $s$ and take $s \to 0$ making the ansatz $x_k \approx X(ks)$ for some smooth curve $X(t)$ with the discrete/continuous scaling $t=ks$. Rescaling and rearranging gives:
+\begin{align}
+    \frac{x_{k+1} - x_k}{s} = - \nabla f(x_k) \label{gd}
+\end{align}
+We then appeal to Taylor's theorem to approximate $x_{k+1} \approx X(t+s)$ as:
+\begin{align*}
+    \frac{x_{k+1} - x_k}{s} = \dot{X}(t) + o(s)
+\end{align*}
+Combining with \eqref{gd} gives:
+\begin{align*}
+    \dot{X}(t) + o(s) = - \nabla f(X)
+\end{align*}
+Matching terms at lowest order we obtain the continuous-time gradient flow:
+\begin{align}
+    \dot{X}(t) = -\nabla f(X)
+\end{align}
+Assuming the $f(X)$ has Lipschitz gradients the (local) existence and uniqueness of solutions to this ODE follows immediately from the Picard-Lindelof theorem (citation).
+
+\subsection{Informal Derivation of the Nesterov ODE}
+Throughout we will assume that the function is $L$-smooth and $\alpha$-strongly convex.
+Recalling the discrete-time Nesterov updates:
+\begin{align*}
+    x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}),
+\end{align*}
+adding the $k+1$st update of $x_k$ as $x_{k+1} = y_k - s \nabla f(y_k)$ and the $k$th update of $y_k$ as $y_k = x_k + \frac{k-1}{k+2}(x_k-x_{k-1})$ gives:
+\begin{align}
+    x_{k+1} - x_{k} = \frac{k-1}{k+2}(x_{k}-x_{k-1}) - s \nabla f(y_k) \label{diff1}
+\end{align}
+In order to derive the continuous-time limit of this set of equations, it is tempting to rescale this equation by $s$ and take $s \to 0$. However, this procedure will produce a degenerate limit as will become more apparent in the later derivation. As shown in \cite{su2014differential}, it is necessary to consider the \textit{ansatz} $x_k \approx X(k \sqrt{s})$ for some smooth curve $X(t)$, where the discrete/continuous time scaling takes the form $t = k \sqrt{s}$. That is we must rescale \eqref{diff1} by $\sqrt{s}$ to obtain:
+\begin{align}
+    (x_{k+1} - x_{k})/\sqrt{s} = (\frac{k-1}{k+2}(x_{k}-x_{k-1}))/\sqrt{s} - \sqrt{s} \nabla f(y_k) \label{diff2}
+\end{align}
+and take $s \to 0$ to obtain the correct limit. With this time-scaling we will have $X(t) \approx x_{t/\sqrt{s}} = x_k$ and $X(t+ \sqrt{s}) \approx x_{(t+\sqrt{s})/\sqrt{s}} = x_{k+1}$. With this ansatz we can appeal to Taylor's theorem to approximate:
+\begin{align*}
+    (x_{k+1}-x_{k})/\sqrt{s} = \dot{X}(t) + \frac{1}{2} \ddot{X}(t) \sqrt{s} + o(\sqrt{s})
+    \\
+    (x_k - x_{k-1})/\sqrt{s} = \dot{X}(t) - \frac{1}{2}\ddot{X}(t) \sqrt{s} + o(\sqrt{s})
+\end{align*}
+and similarly that:
+\begin{align*}
+    \sqrt{s} \nabla f(y_k) = \sqrt{s} \nabla f(X(t)) + o(\sqrt{s})
+    \\
+    \frac{k-1}{k+2} = 1 - \frac{3}{k+2} \approx 1 - \frac{3}{k} = 1 - \frac{3 \sqrt{s}}{t}
+\end{align*}
+where we have used the fact that $y_k - X(t) = o(1)$ in the first equality and considered the large $k$ limit in the second inequality
+Combining these approximations with \eqref{diff2} equation gives:
+\begin{align*}
+    \dot{X}(t) + \frac{1}{2} \ddot{X}(t) \sqrt{s} + o(\sqrt{s}) = (1 - 3\frac{\sqrt{s}}{t} + o(\sqrt{s})(\dot{X}(t) - \frac{1}{2} \ddot{X}(t) \sqrt{s} + o(\sqrt{s})) - \sqrt{s} \nabla f(X(t)) + o(\sqrt{s})
+\end{align*}
+Matching terms at lowest order -- in particular at order $\sqrt{s}$ -- we obtain:
+\begin{align}
+    \ddot{X} + \frac{3}{t} \dot{X} + \nabla f(X) \label{ode}
+\end{align}
+The first initial condition is simply $X(0) = x_0$. Taking $k=1$ in \eqref{diff2} yields $(x_2-x_1)/\sqrt{s} = \sqrt{s} \nabla f(y_1) = o(1)$. Thus, to match terms at lowest order, we must take $\dot{X}(0)=0$\footnote{Had we considered this derivation with the prospective time-scaling $t=ks$ instead of $t = k\sqrt{s}$ we would have obtained a degenerate limit in which the $\dot{X}, \ddot{X}$ were at $O(s)$ in the expansion while the $\nabla f(X)$ term would be at $\mathcal{O}(1)$.}.
+
+Classical ODE theory does unfortunately not imply the (local) existence and uniqueness to this ODE since the coefficient $\frac{3}{t}$ is singular at $t=0$. However, as shown in \cite{su2014differential} the ODE is nonetheless well-posed. \cite{su2014differential} shows this by constructing a series of ODE's approximating \eqref{ode} by truncating $\frac{3}{t} = \frac{3}{\min{k, t}}$ for a sequence of $k\to 0$. One then can use a compactness argument to extract a convergent subsequence by appealing to the Arzela-Ascoli theorem whose limit is the well-defined solution to \eqref{ode}.
+
+This intuitive derivation is formally correct as the following theorem shows:
+\begin{theorem}
+\lim_{s \to 0} \max_{0 \leq k \leq \frac{T}{\sqrt{s}} ||x_k-X(k\sqrt{s})|| = 0
+\cite{su2014differential}
+\end{theorem}
+
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+
+
+
+
+\end{document}
