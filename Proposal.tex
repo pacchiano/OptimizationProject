@@ -13,10 +13,9 @@ Understanding the Continuous-Time Limit of Nesterov Acceleration}
 \maketitle
 
 
-\section{Project}
+\section{Summary}
 
-This project will focus on understanding recent approaches to analyzing the continuous-time limit of ``accelerated'' optimization algorithms \cite{su2014differential, wibisono2016variational, krichene2015accelerated}. After
-the literature review we will hopefully be able to experiment with deriving different discrete-time optimizers (using different numerical discretization schemes) of the continuous-time formulations.
+Our project will focus on understanding recent approaches to analyzing the continuous-time limit of ``accelerated'' gradient descent algorithms for soliving optimization problems \cite{su2014differential, wibisono2016variational, krichene2015accelerated}. We will do a literature review and then experiment with deriving different discrete-time algorithms of  the continuous-time formulations using different numerical discretization schemes.
 
 \section{Background}
 % Gradient descent update
@@ -24,20 +23,20 @@ First order methods for solving convex optimization problems of the form
 \[\min f(x)\]
 are popular for many machine-learning tasks and large-scale problems. Perhaps the earliest method, gradient descent, dates back to Euler and Lagrange:
 \[x_{k+1} = x_k - s \nabla f(x_k)\]
-where the discrete-time system is initialized at $x_0$. In a seminal paper, Nesterov proposed an "accelerated" gradient method \cite{nesterov1983method}, which introduces an auxiliary "momentum" variable:
+where the discrete-time system is initialized at $x_0$. In a seminal paper, Nesterov proposed an ``accelerated" gradient method \cite{nesterov1983method}, which introduces an auxiliary ``momentum" variable:
 \begin{align*}
     x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
-    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}).
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}),
 \end{align*}
 initialized at $x_0$ and $y_0 = x_0$. Importantly, 
-for any fixed step size $s \leq \frac{1}{L}$ where $L$ is the Lipschitz constant of $\nabla f$, the Nesterov "accelerated" gradient scheme has a convergence rate of:
+for any fixed step size $s \leq \frac{1}{L}$ where $L$ is the Lipschitz constant of $\nabla f$, the Nesterov accelerated gradient scheme has a convergence rate of:
  
-\begin{equation}
+\begin{equation*}
 f(x_k) - f^* \leq O \left(\frac{\|x_0 - x^*\|^2}{sk^2} \right)
-\end{equation}
-which achieves the optimal convergence rate amongst first order methods \footnote{The first-order oracle complexity lower bound for first order methods applies to black-box optimization problems which use the previous trajectory $(x_1, g_1, \cdots, x_t, g_t)$ where $g_i \in \partial f(x_i)$ to determine the next point $x_{t+1}$ \cite{blair1985problem, nesterov2004introductory}.}. Indeed, the while the convergence rate of the "accelerated" gradient scheme is quadratic, the ordinary gradient descent scheme only has a linear convergence rate.
+\end{equation*}
+which achieves the optimal convergence rate amongst first order methods \footnote{The first-order oracle complexity lower bound for first order methods applies to black-box optimization problems which use the previous trajectory $(x_1, g_1, \cdots, x_t, g_t)$ where $g_i \in \partial f(x_i)$ to determine the next point $x_{t+1}$ \cite{blair1985problem, nesterov2004introductory}.}. Indeed, the while the convergence rate of the accelerated gradient scheme is quadratic, the ordinary gradient descent scheme only has a linear convergence rate.
 
-This accelerated method has notable applications in sparse linear regression\cite{beck2009fast}\cite{qin2012structured}, compressed sensing \cite{becker2011nesta}, and deep and recurrent neural networks \cite{sutskever2013importance}. Recently, Su et al.\cite{su2014differential} derived a second order ODE which is the continuous time limit of Nesterov's method. The ODE takes the form
+This accelerated method has notable applications in sparse linear regression\cite{beck2009fast}\cite{qin2012structured}, compressed sensing \cite{becker2011nesta}, and deep and recurrent neural networks \cite{sutskever2013importance}. Recently, Su et al. derived a second order ODE which is the continuous time limit of Nesterov's method \cite{su2014differential}. The ODE takes the form
 \[ \ddot{X} + \frac{3}{t} \dot{X} + \nabla f(X) = 0 \]
 By analyzing properties of this ODE, a generalized family of accelerated methods can be constructed and many of the peculiar properties observed in Nesterov's method can be more deeply understood. 
 
