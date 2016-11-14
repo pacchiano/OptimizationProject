@@ -1,28 +1,236 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
-\usepackage{fullpage}
-\usepackage{amsmath}
+\usepackage{amsmath, amsfonts}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[procnames]{listings}
+\usepackage{color}
 
 
 
-\title{EE227BT Project:
-Chapter 3 Bubeck notes}
-\author{Aldo Pacchiano}
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{lingmacros}
+\usepackage{tree-dvips}
+
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{tabu}
+
+\usepackage{lingmacros}
+\usepackage{tree-dvips}
+\usepackage{ifthen}
+\usepackage{mdwlist}
+\DeclareMathOperator{\argmax}{argmax}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{question}{Question}
+\newtheorem{observation}{Observation}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}{Claim}
+\newtheorem{dfn}{Definition}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+%\newtheorem{question}{Question}
+\newcommand{\proofstart}{{\bf Proof\hspace{2em}}}
+\newcommand{\tset}{\mbox{$\cal T$}}
+\newcommand{\proofend}{\hspace*{\fill}\mbox{$\Box$}}
+\newcommand{\bfm}[1]{\mbox{\boldmath $#1$}}
+
+
+\title{Chapter 3 Bubeck}
+\author{Aldo Pacchiano }
+\date{September 2016}
+
 \begin{document}
+
+
 \maketitle
 
 
 \section{Dimension Free Optimization}
 
+Gradient descent is an iterative optimization algorithm that can be traced back to Cauchy in 1847 that can be used to minimise a convex function $f$ over $\mathbb{R}$. The iterations evolve according to the following update equation:
+
+\begin{equation}
+    x_{t+1} = x_t - \eta \nabla f(x_t)
+\end{equation}
+
+Where $\eta > 0$ is called the step size. 
+
+One can study the convergence properties of Gradient descent for convex functions provided some restrictions are imposed on the class of functions subject to study. We focus on the study of $\beta-$smooth and $\alpha-$strongly convex functions. 
+
+\subsection{Smoothness}
+
+\begin{definition}
+
+We say that a continous differentiable function is $\beta$-smooth if the gradient $\nabla f$ is $\beta-$Lipschitz, that is:
+
+\begin{equation}
+    \parallel \nabla f(x) - \nabla f(y) \parallel \leq \beta \parallel x - y \parallel
+\end{equation}
+
+\end{definition}
+
+This is equivalent to say that the eigenvalues of the Hessian being smaller than $\beta$. 
+The convergence rate for gradient descent convergence for $\beta-$smooth functions is:
+
+\begin{theorem}
+
+Let $f$ be convex and $\beta$-smooth on $\mathbb{R}^n$, then gradient descent with $\eta = \frac{1}{\beta}$ satisfies:
+
+\begin{equation}
+f(x_t) - f(x^*) \leq \frac{2\beta \parallel x_1 - x^* \parallel^2}{t-1}
+\end{equation}
+
+\end{theorem}
+
+
+Note:
+
+The proof hinges on the following equivalent characterization of $\beta-$smooth functions:
+
+\begin{equation}\label{fundamental_beta_eq}
+0 \leq f(x) - f(y) - \nabla f(y)^T(x-y) \leq \frac{\beta}{2} \parallel x - y \parallel^2
+\end{equation}
+
+A $\beta$-smooth function is dominated by a quadratic. 
+
+In particular Equation \ref{fundamental_beta_eq} immediately implies a bound for the minimal improvement of a single gradient descent step.
+
+\begin{equation}
+f(x- \frac{1}{\beta} \nabla f(x) ) - f(x) \leq -\frac{1}{2\beta} \parallel \nabla f(x) \parallel^2
+\end{equation}
 
 
 
 
-\bibliographystyle{unsrt}
-\bibliography{refs}
+
+
+
+
+
+
+\subsection{Strong convexity}
+
+\begin{definition}
+We say that $f: \mathcal{X} \rightarrow \mathbb{R}$ is $\alpha-$ strongly convex if it satisfies the following inequality:
+
+\begin{equation}
+f(x) - f(y) \leq \nabla f(x)^T (x-y) - \frac{\alpha}{2} \parallel x -y \parallel^2
+\end{equation}
+
+\end{definition}
+
+Alternatively, a function $f$ is strongly convex if $x \rightarrow f(x) - \frac{\alpha}{2}\parallel x \parallel^2$ is convex. In the case of twice differentiable functions it is equivalent to saying that the eigenvalues of the Hessian be bounded below by $\alpha$. 
+
+In the case of strongly convex functions one can prove the following convergence upper bound for gradient descent:
+
+\begin{theorem}
+If $f$ is $\alpha-$strongly convex and and $L-$lipschitz ($|f(x) - f(y)| \leq L \parallel x - y\parallel $) on a domain $\mathcal{X}$, gradient descent (taking a gradient step and proyecting it back to the domain $\mathcal{X}$) with dynamic step size $\eta_s = \frac{1}{\alpha(s+1)}$ at time $s$ satisfies the following bound:
+
+\begin{equation}
+f\left(\sum_{s=1}^t \frac{2s}{t(t+1)} x_s \right) - f(x^*) \leq \frac{2L^2}{\alpha (t+1)}
+\end{equation}
+
+\end{theorem}
+
+
+
+
+
+
+
+
+
+\subsubsection{Strongly convex and smooth functions}
+
+Assume $f$ to be $\alpha-$ strongly convex and $\beta-$ smooth. 
+
+\begin{definition}
+The \textbf{condition number} of $f$ is $\kappa = \frac{\beta}{\alpha}$. Then:
+\end{definition}
+
+We can show the following convergence rate for functions that are both $\alpha-$strongly convex and $\beta-$smooth:
+
+\begin{theorem}
+If $f$ is $\alpha-$strongly convex and $\beta-$smooth over $\mathcal{X}$ then projected gradient descent with $\eta = \frac{1}{\beta}$ satisfies for $t \geq 0$:
+
+\begin{equation}
+\parallel x_{t+1} - x^*\parallel^2 \leq \exp(-\frac{t}{\kappa})\parallel x_1 - x^*\parallel^2
+\end{equation}
+
+
+\end{theorem}
+
+We can also derive a result showing exponential convergence on the value of the function. 
+
+\begin{theorem}
+Let $f$ be $\beta-$smooth and $\alpha-$strongly convex on $\mathbb{R}^n$. Then gradient descent with $\eta = \frac{2}{\alpha+\beta}$ satisfies:
+\begin{equation}
+f(x_{t+1}) - f(x^*) \leq \frac{\beta}{2} \exp( -\frac{4t}{\kappa + 1}) \parallel x_1 - x^* \parallel^2
+\end{equation}
+\end{theorem}
+
+
+
+\subsubsection{Lower bounds}
+
+A black box procedure is a mapping from the history of the algorithm to the next query point. In other words, it maps $(x_1, g_1, \cdots, x_t, g_t)$ such that $g_t \in \partial f(x_t)$ to $x_{t+1}$. And such that $x_1 = 0$ and $x_{t+1}$ is in the linear span of $g_1, \cdots, g_t$. 
+
+Denote $e_1, \cdots, e_n$ the canonical basis of $\mathbb{R}^n$, and $B_2(R) = \{ x \in \mathbb{R}^n : \parallel x \parallel \leq R\}$. 
+
+In this section we present lower bounds for the convergence rate of black box optimization procedures for different classes of convex functions. 
+
+We first show that for $\beta-$smooth convex functions there is no black box procedure achieving a faster convergence rate than $\frac{1}{t^2}$. 
+
+
+
+\begin{theorem}
+Let $t \leq (n-1)/2 , \beta >0$, then there is a $\beta-$smooth convex function such that any black box procedure for which $x_{t+1} \in Span(g_1, \cdots, g_t)$: 
+
+\begin{equation}
+\min_{1 \leq s \leq t } f(x_s ) - f(x^*) \geq \frac{3\beta}{32} \frac{\parallel x_1 - x^*\parallel}{(t+1)^2}
+\end{equation}
+
+\end{theorem}
+
+
+
+
+\proofstart
+
+
+Consider the following quadratic function:
+
+
+
+Write the proof. 
+\proofend
+
+
+\begin{theorem}
+If the condition number $\kappa > 1$, then there is a $\beta-$smooth and $\alpha-$strongly convex function $f: l_2 \rightarrow \mathbb{R}$ with $\kappa = \frac{\beta}{\alpha}$ such that for any $t \geq 1$ and any black box procedure for which $x_{k+1} \in Span( g_1, \cdots, g_t)$:
+
+\begin{equation}
+f(x_t) - f(x^*) \geq \frac{\alpha}{2} \left(\frac{ \sqrt{\kappa}-1}{\sqrt{\kappa}+1}\right)^{2(t-1)} \parallel x_1 - x^* \parallel^2
+\end{equation}
+
+When $\kappa$ is large, $\left(\frac{ \sqrt{\kappa}-1}{\sqrt{\kappa}+1}\right)^{2(t-1)} \parallel x_1 - x^* \parallel^2 \approx \exp( -\frac{4(t-1)}{\sqrt{\kappa}})$
+
+
+\end{theorem}
 
 
 
 
 
 \end{document}
+

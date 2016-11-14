@@ -1,0 +1,50 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\newtheorem{theorem}{Theorem}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\usepackage{hyperref}
+
+
+\title{Temp Mirror Descent Notes}
+\author{Jeffrey Chan}
+\begin{document}
+\maketitle
+
+\section{Non-euclidean setting: mirror descent -- Jeffrey}
+The dimension-free oracle bounds that have been discussed up until this point rely upon a well-behaved objective function $f$ and constraint set $\mathcal{X}$ in the $l_2$ norm; namely, the radius of the constraint set $R$ and Lipschitz constant of the objective function $L$ with respect to the $l_2$ norm must be independent of the ambient dimension $n$ in order to achieve a dimension-free oracle bound. In some settings, $f$ and $\mathcal{X}$ may be well-behaved with respect to an arbitrary norm $\|\cdot \|$, in which we wish to exploit the underlying structure to achieve fast convergence rates independent of the ambient dimension $n$. In this section, we provide an overview of the details of mirror descent, a method developed by \cite{blair1985problem}, which allows us to achieve a faster convergence rate for vector spaces endowed with an arbitrary norm. 
+
+
+\subsection{Dual space}
+connections with Fenchel, etc
+- Gradient lives dual space
+- In the case of Hilbert S
+
+\subsection{Mirror map}
+- Properties of Mirror map
+- What this induces for the purposes of mirror descent
+
+\subsection{Bregman divergences}
+ - Bregman divergence definition
+ - Can be interpreted as the difference between the function at x and the first-order taylor expansion around y for a given potential function
+ - Generalization of squared Euclidean norm
+ - Bregman is the law of cosines of FOC (?)
+ - Duality
+ - (Ashia paper) The Bregman Lagrangian is an approximation of the Hessian but the Hessian is difficult to discretize
+
+Examples:
+- KL divergence
+- L_P norm
+- Mutual Information/hamming distance etc
+
+\subsection{Mirror descent}
+- Mirror descent and convergence results
+- Examples of varying setups
+Adaboost connection to the entropy?
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+
+\end{document}

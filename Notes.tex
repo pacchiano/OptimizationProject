@@ -11,10 +11,12 @@ Notes}
 \begin{document}
 \maketitle
 
+\section{Introduction}
+Many convex optimization methods can be interpreted as the discretization of an ordinary differential equation, whose solution trajectories approximate the steps of the optimization algorithm. The established theory of ordinary differential equations and dynamical systems can often provide insight in the design and analysis of their corresponding discrete-time optimization algorithms. Connections between have appeared etc... 
 
 \section{Summary: Candes Paper}
 \subsection{Informal Derivation of the Gradient Descent ODE}
-We first consider the discrete-time gradient descent updates for the $L$-smooth and $\alpha$-strongly convex function $f$:
+We first consider the discrete-time gradient descent updates for the $L$-smooth (equivalent to $L$-Lipschitz gradients) and convex function $f$:
 \begin{align*}
     x_{k+1} = x_k - s \nabla f(x_k) 
 \end{align*}
@@ -32,24 +34,40 @@ Combining with \eqref{gd} gives:
 \end{align*}
 Matching terms at lowest order we obtain the continuous-time gradient flow:
 \begin{align}
-    \dot{X}(t) = -\nabla f(X)
+    \dot{X}(t) = -\nabla f(X) \label{gdode}
 \end{align}
-Assuming the $f(X)$ has Lipschitz gradients the (local) existence and uniqueness of solutions to this ODE follows immediately from the Picard-Lindelof theorem (citation).
+Assuming the $f(X)$ has Lipschitz gradients the (local) existence and uniqueness of solutions to this ODE follows immediately from the Cauchy-Lipschitz theorem \cite{teschl2012ordinary}.
+\subsubsection{Convergence Analysis in Continuous-Time}
+Proving convergence of the solution trajectories of an ODE can often be achieved using an intuitive Lyapunov argument. In the simple case of gradient descent, considering the Lyapunov (or energy) functional:
+\begin{align*}
+    \mathcal{E}(X(t), t) = t (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2
+\end{align*}
+proves to be fruitful. Here we assume that $x^*$ is the unique global minimizer of the convex function $f$. Direct computation shows that we have:
+\begin{align*}
+    & \dot{\mathcal{E}}= f(X(t)) - f(x^*) + t \langle \nabla f(X(t)), \dot{X}(t) \rangle + \langle \dot{X}(t), X(t)-x^* \rangle = \\
+    & \underbrace{f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle}_{\leq 0} \underbrace{- t || \nabla f(X(t))||_2^2}_{\leq 0} \implies \\
+    & \dot{\mathcal{E}} \leq 0
+\end{align*}
+where by convexity we have that $f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle \leq 0$ and $ - t ||f(X(t))||_2^2 \leq 0$ since $t>0$. Now, using that $||X(t)-x^*||_2^2$ is non-negative, and that is $\mathcal{E}$ is non-increasing function (since $\dot{\mathcal{E}} \leq 0$) we immediately obtain that:
+\begin{align*}
+    f(X(t)) - f(x^*) = \frac{\mathcal{E}(X(t), t)}{t} - \frac{1}{2t} ||X(t) - x^*||_2^2 \leq \frac{\mathcal{E}(X(t), t)}{t} \leq \frac{\mathcal{E}(X(0), 0)}{t} = \frac{||X(0)-x^*||_2^2}{2t}
+\end{align*}
+which shows that $f(X(t)) \to f(x^*)$ at a $\mathcal{O}(1/t)$ convergence rate matching the $\mathcal{O}(k)$ convergence rate of gradient descent for convex, $\beta$-smooth functions \cite{DBLP:journals/ftml/Bubeck15}.
+
 
 \subsection{Informal Derivation of the Nesterov ODE}
-Throughout we will assume that the function is $L$-smooth and $\alpha$-strongly convex.
-Recalling the discrete-time Nesterov updates:
-\begin{align*}
+As in the case of gradient descent we will assume the function is $L$-smooth for some $L > 0$. Recalling the discrete-time Nesterov updates:
+\begin{align}
     x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
-    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}),
-\end{align*}
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}) \label{nesterov}
+\end{align}
 adding the $k+1$st update of $x_k$ as $x_{k+1} = y_k - s \nabla f(y_k)$ and the $k$th update of $y_k$ as $y_k = x_k + \frac{k-1}{k+2}(x_k-x_{k-1})$ gives:
 \begin{align}
     x_{k+1} - x_{k} = \frac{k-1}{k+2}(x_{k}-x_{k-1}) - s \nabla f(y_k) \label{diff1}
 \end{align}
 In order to derive the continuous-time limit of this set of equations, it is tempting to rescale this equation by $s$ and take $s \to 0$. However, this procedure will produce a degenerate limit as will become more apparent in the later derivation. As shown in \cite{su2014differential}, it is necessary to consider the \textit{ansatz} $x_k \approx X(k \sqrt{s})$ for some smooth curve $X(t)$, where the discrete/continuous time scaling takes the form $t = k \sqrt{s}$. That is we must rescale \eqref{diff1} by $\sqrt{s}$ to obtain:
 \begin{align}
-    (x_{k+1} - x_{k})/\sqrt{s} = (\frac{k-1}{k+2}(x_{k}-x_{k-1}))/\sqrt{s} - \sqrt{s} \nabla f(y_k) \label{diff2}
+    (x_{k+1} - x_{k})/\sqrt{s} = \left( \frac{k-1}{k+2}(x_{k}-x_{k-1}) \right)/\sqrt{s} - \sqrt{s} \nabla f(y_k) \label{diff2}
 \end{align}
 and take $s \to 0$ to obtain the correct limit. With this time-scaling we will have $X(t) \approx x_{t/\sqrt{s}} = x_k$ and $X(t+ \sqrt{s}) \approx x_{(t+\sqrt{s})/\sqrt{s}} = x_{k+1}$. With this ansatz we can appeal to Taylor's theorem to approximate:
 \begin{align*}
@@ -72,15 +90,116 @@ Matching terms at lowest order -- in particular at order $\sqrt{s}$ -- we obtain
 \begin{align}
     \ddot{X} + \frac{3}{t} \dot{X} + \nabla f(X) \label{ode}
 \end{align}
-The first initial condition is simply $X(0) = x_0$. Taking $k=1$ in \eqref{diff2} yields $(x_2-x_1)/\sqrt{s} = \sqrt{s} \nabla f(y_1) = o(1)$. Thus, to match terms at lowest order, we must take $\dot{X}(0)=0$\footnote{Had we considered this derivation with the prospective time-scaling $t=ks$ instead of $t = k\sqrt{s}$ we would have obtained a degenerate limit in which the $\dot{X}, \ddot{X}$ were at $O(s)$ in the expansion while the $\nabla f(X)$ term would be at $\mathcal{O}(1)$.}.
+The first initial condition is simply $X(0) = x_0$. Taking $k=1$ in \eqref{diff2} yields $(x_2-x_1)/\sqrt{s} = \sqrt{s} \nabla f(y_1) = o(1)$. Thus, to match terms at lowest order, we must take $\dot{X}(0)=0$\footnote{Had we considered this derivation with the prospective time-scaling $t=ks$ instead of $t = k\sqrt{s}$ we would have obtained a degenerate limit in which the $\dot{X}, \ddot{X}$ were at $\mathcal{O}(s)$ in the expansion while the $\nabla f(X)$ term would be at $\mathcal{O}(1)$.}.
 
-Classical ODE theory does unfortunately not imply the (local) existence and uniqueness to this ODE since the coefficient $\frac{3}{t}$ is singular at $t=0$. However, as shown in \cite{su2014differential} the ODE is nonetheless well-posed. \cite{su2014differential} shows this by constructing a series of ODE's approximating \eqref{ode} by truncating $\frac{3}{t} = \frac{3}{\min{k, t}}$ for a sequence of $k\to 0$. One then can use a compactness argument to extract a convergent subsequence by appealing to the Arzela-Ascoli theorem whose limit is the well-defined solution to \eqref{ode}.
+Classical ODE theory does unfortunately not imply the (local) existence and uniqueness to this ODE since the coefficient $\frac{3}{t}$ is singular at $t=0$. However, as shown in \cite{su2014differential} the ODE is nonetheless well-posed. \cite{su2014differential} shows this by constructing a series of ODE's approximating \eqref{ode} by truncating $\frac{3}{t} = \frac{3}{\min \{ k, t \}}$ for a sequence of $k\to 0$. One then can use a compactness argument to extract a convergent subsequence by appealing to the Arzela-Ascoli theorem whose limit is the well-defined solution to \eqref{ode}.
 
-This intuitive derivation is formally correct as the following theorem shows:
+This intuitive derivation is formally correct as the following theorem justifies:
 \begin{theorem}
-\lim_{s \to 0} \max_{0 \leq k \leq \frac{T}{\sqrt{s}} ||x_k-X(k\sqrt{s})|| = 0
-\cite{su2014differential}
+    For any function $L$-Lipschitz function as the step-size $s \to 0$ the sequence of $x_k$ satisfying the discrete-time updates of \eqref{nesterov} converges to the solution of the ODE \eqref{ode} in the sense that \cite{su2014differential}: \\
+    \lim_{s \to 0} \max_{0 \leq k \leq \frac{T}{\sqrt{s}}} ||x_k-X(k\sqrt{s})|| = 0
 \end{theorem}
+\subsubsection{Convergence Analysis in Continuous-Time}
+Analagous to the case of gradient descent, a simply Lyapunov argument can be used to show the convergence of the Nesterov ODE to the minimizer of $f$ in continuous-time \cite{su2014differential}. As usual we consider a function $f$ that is $L$-smooth. Constructing the energy functional:
+\begin{align*}
+    \mathcal{E}(t) = t^2 (f(X(t)) - f^*) + 2||X+t \dot{X}/2 - x^*||_2^2
+\end{align*}
+we have by direct computation that:
+\begin{align*}
+    \dot{\mathcal{E}} = 2t(f(X(t)) - f(x^*)) + t^2 \langle \nabla f(X(t)), \dot{X} \rangle + 4 \langle X + \frac{t}{2} \dot{X} - x^*, \frac{3}{2} \dot{X} + \frac{t}{2} \ddot{X} \rangle
+\end{align*}
+Substituting $3 \dot{X}/2 + t \ddot{X}/2$ with $-t \nabla f(X)/2$ gives:
+\begin{align*}
+    \dot{\mathcal{E}} = 2t(f(X(t)) - f(x^*)) + 4\langle X(t)-x^*, -t \nabla f(X(t))/2 \rangle = 2t \left( f(X(t)) - f(x^*) - \langle X(t)-x^*, \nabla f(X(t)) \rangle \right ) \leq 0
+\end{align*}
+where by convexity we have that $f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle \leq 0$. Now, using that $||X+t \dot{X}/2 - x^*||_2^2$ is non-negative, and that is $\mathcal{E}$ is non-increasing function (since $\dot{\mathcal{E}} \leq 0$) we immediately obtain that:
+\begin{align*}
+    f(X(t)) - f(x^*) = \frac{\mathcal{E}(X(t), t)}{t^2} - \frac{2}{t^2} ||X+t \dot{X}/2 - x^*||_2^2 \leq  \frac{\mathcal{E}(X(t), t)}{t^2} \leq \frac{\mathcal{E}(X(0), 0)}{t} = \frac{2 ||X(0)-x^*||_2^2}{t}
+\end{align*}
+which shows that $f(X(t)) \to f(x^*)$ at a $\mathcal{O}(1/t^2)$ convergence rate matching the $\mathcal{O}(1/k^2)$ convergence rate of "annealed" Nesterov acceleration gradient descent for convex, $L$-smooth functions (which is "optimal" amongst first-order methods).
+\subsubsection{The ``Magic" Constant 3}
+Recall the constant $3$ appearing in the Nesterov ODE \eqref{ode}:
+\begin{align}
+    \ddot{X} + \frac{3}{t} \dot{X} + \nabla f(X) 
+\end{align}
+originates from the $\frac{k-1}{k+2} = 1 - \frac{3}{k} + \mathcal{O}(1/k^2)$ in \eqref{nesterov}, and controls the strength of the "damping" term in the dynamics. The continuous-time perspective shows that this choice of constant is not haphazard -- in fact the constant $3$ can be replaced with any larger number $r>3$ while preserving the the $\mathcal{O}(1/t^2)$ convergence rate. However, smaller choices of $r$ quickly lead to oscillatority, non-convergent solutions \cite{su2014differential}.
+
+If we consider:
+\begin{align}
+    \ddot{X} + \frac{r}{t} \dot{X} + \nabla f(X) \label{highfrictionode}
+\end{align}
+with initial conditions $X(0) = x_0$ and $\dot{X}(0) = 0$ for $r>3$, this ODE possesses a higher friction term than \eqref{ode}. As before the convergence rate can be proven by constructing an appropriate energy functional:
+\begin{align*}
+    \mathcal{E}(X(t), t) = \frac{2t^2}{r-1} \left( f(X(t)) -f(x^*) \right) + (r-1) ||X(t) + \frac{t}{r-1}\dot{X}(t) -x^*||_2^2
+\end{align*}
+gives:
+\begin{align*}
+    \dot{\mathcal{E}}(X(t), t)) = \frac{4t}{r-1}(f(X(t)) - f(x^*)) + \frac{2t^2}{r-1} \langle \nabla f, \dot{X} \rangle + 2 \langle X + \frac{t}{r-1} \dot{X} - x^*, r \dot{X} + t \ddot{X} \rangle
+\end{align*}
+Using $r\dot{X} + t \ddot{X} = -t \nabla f(X(t))$ gives:
+\begin{align*}
+    \dot{\mathcal{E}}(X(t), t)) = \frac{4t}{r-1} (f(X(t) - f(x^*)) - 2t \langle X(t) - x^*, \nabla f(X(t)) \rangle \leq - \frac{2(r-3)t}{r-1}(f(X(t))-f(x^*))
+\end{align*}
+where the last inequality follows from the convexity of $f$ which gives: $-\langle X(t) - x^*, \nabla f(X(t)) \rangle \leq f(X(t)) - f(x^*)$. Since the $f(X(t)) - f(x^*) \geq 0$ this implies $\dot{\mathcal{E}}$ is non-decreasing\footnote{The $r-3$ term in the convexity bound on $\dot{\mathcal{E}}$ also provides some intuition for the role of the ``magic" constant $3$.}. Since the term $(r-1) ||X(t) + \frac{t}{r-1} \dot{X}(t) - x^*||_2^2$ is non-negative and $\mathcal{E}(t)$ is non-decreasing we obtain a $\mathcal{O}(1/t^2)$ convergence rate as before:
+\begin{align*}
+    & f(X(t)) - f(x^*) = \frac{r-1}{2t^2} \mathcal{E}(X(t), t) - \frac{(r-1)^2}{2t^2} ||X(t) + \frac{t}{r-1} \dot{X}(t) - x^*||_2^2 \\
+    & \leq \frac{r-1}{2t^2} \mathcal{E}(X(t), t) \leq \frac{r-1}{2t^2} \mathcal{E}(X(0), 0) = \frac{(r-1)^2 ||X(0)-x^*||_2^2}{2 t^2}
+\end{align*}
+Present numerical examples/counterexamples
+ 
+\section{``Constant" Nesterov Acceleration}
+In the original work of Nesterov \cite{DBLP:journals/ftml/Bubeck15, nesterov2004introductory} two "acceleration" methods are presented in discrete-time. The "time-varying" case for $L$-smooth functions -- \eqref{nesterov} which ``accelerates" the $\mathcal{O}(1/k)$ rate of gradient descent to an optimal $\mathcal{O}(1/k^2)$ rate. However, Nesterov also presented an optimal algorithm for $\alpha$-strongly convex, $L$-smooth functions achieving an optimal geometric convergence rate $\mathcal{O} \left (\exp(-\frac{k}{\sqrt{\kappa}}) \right)$ compared to the $\mathcal{O} \left (\exp(-\frac{k}{\kappa}) \right)$ of gradient descent\footnote{Here $\kappa$ is the condition number of the function defined as $\kappa = \sqrt{L/\alpha}$.}:
+\begin{align}
+    & x_{k} = y_{k-1} - s \nabla f(y_{k-1}) \label{eq:constantnesterov1} \\
+    & y_{k} = x_{k} + \left( \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} \right) \left( x_{k} - x_{k-1} \right)  \label{eq:constantnesterov2}
+\end{align}
+ The original work of \cite{su2014differential} does not derive a continuous-time limit of this "constant" Nesterov scheme. Perhaps surprisingly, \cite{su2014differential} notes \textit{it is not possible} for a continuous-time ODE to generically achieve a non-polynomial (i.e. exponential) convergence rate -- making the continuous-time study of \eqref{eq:constantnesterov1} less interesting. However, due to the fact the momentum term is not time-varying the dynamical system specified by \eqref{eq:constantnesterov1}  (and its underlying ODE) should actually be simpler then the time-varying formulation. 
+ 
+ Although, this case is simpler (and less interesting) then the time-varying to our knowledge, the continuous-time limit of \eqref{eq:constantnesterov1} has not been analyzed, so we derive the underlying ODE here. 
+ 
+ We first add the $k+1$st term of \eqref{eq:constantnesterov1} -- $x_{k+1} = y_k - s \nabla f(y_k)$ to the $k$th update of \eqref{eq:constantnesterov2} -- $y_k = x_k + \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} (x_k - x_{k-1})$ to obtain:
+ \begin{align*}
+     x_{k+1} = x_{k} + \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}(x_{k}-x_{k-1}) - s \nabla f(y_k)
+ \end{align*}
+ In order to derive the continuous-time limit of this set of equations, we might initially consider rescaling this equation by $\sqrt{s}$ and take $s \to 0$ as in the derivation of \eqref{ode}. However, this procedure produces a degenerate limit. Instead we rescale by $s$ as in the case of the continuous-time limit of gradient descent in \eqref{gdode}. In particular we consider the \textit{ansatz} $x_k \approx X(k s)$ for some smooth curve $X(t)$, where the discrete/continuous time scaling takes the form $t = k s$.
+ \begin{align*}
+    \frac{x_{k+1}-x_k}{s} = \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} \left( \frac{x_{k}-x_{k-1}}{s} \right) - \nabla f(y_k)
+ \end{align*}
+ 
+ We will approximate $x_{k+1} \approx X(t+s)$, $x_k \approx X(t)$, $x_{k-1} \approx X(t-s)$. So rescaling b
+ Thus we have that:
+ \begin{align*}
+     & \frac{x_{k+1} - x_k}{s} = \dot{X}(t) + o(1) \\
+     & \frac{x_k - x_{k-1}}{s} = \dot{X}(t) + o(1) \\
+     & \nabla f(y_k) = \nabla f(X(t)) + o(1)
+ \end{align*}
+ which gives:
+ \begin{align*}
+     \dot{X}(t) + o(1) = \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} \left( \dot{X}(t) + o(1)\right) - \nabla f(X(t)) + o(1)
+ \end{align*}
+ Matching terms at lowest-order yields the desired ODE as:
+ \begin{align}
+     \dot{X}(t) = -\frac{\sqrt{\kappa}+1}{2} \nabla f(X(t)) \label{constantnesterovode}
+ \end{align}
+The condition number for a convex function will always be $\kappa > 1 \implies \frac{\sqrt{\kappa}+1}{2} > 1$. Relative to the gradient descent ODE \eqref{gdode}, the ``constant" acceleration ODE \eqref{constantnesterovode} has a forcing term with increased constant coefficient. Intuitively, this suggests this ODE will converge to equilibrium faster.
+
+We can construct a Lyapunov functional for analogous to the case of gradient descent:
+\begin{align*}
+    \mathcal{E}(X(t), t) = \frac{\sqrt{\kappa}+1}{2}t(f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2
+\end{align*}
+Direct computation shows that we have:
+\begin{align*}
+    & \dot{\mathcal{E}}= \frac{\sqrt{\kappa}+1}{2}(f(X(t)) - f(x^*)) + \frac{\sqrt{\kappa}+1}{2} t \langle \nabla f(X(t)), \dot{X}(t) \rangle + \langle \dot{X}(t), X(t)-x^* \rangle = \\
+    & \frac{\sqrt{\kappa}+1}{2} \underbrace{f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle}_{\leq 0} \underbrace{- t (\frac{\sqrt{\kappa}+1}{2})^2 || \nabla f(X(t))||_2^2}_{\leq 0} \implies \\
+    & \dot{\mathcal{E}} \leq 0
+\end{align*}
+where by convexity we have that $f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle \leq 0$ and $ - t ||f(X(t))||_2^2 \leq 0$ since $t>0$. Now, using that $||X(t)-x^*||_2^2$ is non-negative, and that is $\mathcal{E}$ is non-increasing function (since $\dot{\mathcal{E}} \leq 0$) we immediately obtain that:
+\begin{align*}
+    & f(X(t)) - f(x^*) = \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(t), t)}{t} - \frac{1}{(\sqrt{\kappa}+1)t} ||X(t) - x^*||_2^2 \leq \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(t), t)}{t} \leq \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(0), 0)}{t} = \\ & \frac{2}{\sqrt{\kappa}+1} \frac{||X(0)-x^*||_2^2}{2t}
+\end{align*}
+
+Since $\frac{2}{\sqrt{\kappa}+1} < 1$ this bound on the error is tighter than in the case of gradient descent.
+
 
 
 \bibliographystyle{unsrt}
