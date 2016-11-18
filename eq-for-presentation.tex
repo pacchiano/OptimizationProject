@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\newtheorem{theorem}{Theorem}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\usepackage{hyperref}
+
+\title{In Class Presentation}
+\author{Sarah Dean}
+\begin{document}
+\maketitle
+
+\section{Background: first order/gradient descent methods}
+general gradient descent (euclidean setting), mention lower bounds, convergence rates 
+\begin{align*}
+    x_{k+1} = x_k - s \nabla f(x_k) 
+\end{align*}
+\section{Accelerated gradient descent: Nesterov}
+Write the equation here
+\begin{align*}
+    x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}) 
+\end{align*}
+
+\section{Continuous-time ODE}
+Write equation here, with identification $t=k\sqrt{s}$.
+\begin{align*}
+    \ddot{X} + \frac{3}{t} \dot{X} + \nabla f(X) 
+\end{align*}
+\begin{align*}
+    \ddot{X} + \frac{r}{t} \dot{X} + \nabla f(X) \label{highfrictionode}
+\end{align*}
+\begin{align*}
+    \mathcal{E}(X(t), t) = \frac{2t^2}{r-1} \left( f(X(t)) -f(x^*) \right) + (r-1) ||X(t) + \frac{t}{r-1}\dot{X}(t) -x^*||_2^2
+\end{align*}
+Lyapunov function from Bartlett paper
+\[\mathcal{E}(t) = \frac{t^2}{r} (f(X) - f^*) + \frac{r}{2} \|X+\frac{t}{r}\dot X - x^* \|^2\]
+
+\section{Continuous time Accelerated Mirror Descent}
+\[ V(X(t),Z(t),t) = \frac{t^2}{r} (f(X(t)) - f^*) + r D_{\psi^*} (Z(t), z^*) \]
+chose dynamics $\dot Z = -\frac{t}{r} \nabla f(X)$, and also $\nabla \psi^*(Z) = X + \frac{t}{r} \dot X$ Where
+the Bregman divergence: 
+\[ D_{\psi^*}(z,y) = \psi^*(z) - \psi^*(y) - \langle \psi^*(y), z-y\rangle \]
+Recover the ODE
+\[ \dot X = \frac{r}{t} (\nabla \psi^*(Z) - X),\quad \dot Z = -\frac{t}{r} \nabla f(X) \]
+
+
+\section{Dsicrete time mirror descent}
+
+\[ x_{k+1}  = \lambda_k \nabla \psi^*(z_k) + (1-\lambda_k) x_{k}, \quad z_{k+1} = z_k -\frac{ks}{r} \nabla f(x_{k+1}) \]
+If we do something special ** with $\psi$ and $\psi^*$ we can recover that for $\tilde z_{k+1} = \nabla \psi^*(z_{k+1} )$
+\[ \tilde z_{k+1} = \argmin_{x\in\mathcal{X}} \frac{ks}{r} \langle \nabla f(x_{k+1}), x \rangle + D_\psi (x, \tilde z_k)\]
+
+replace $x_k$ with 
+\[\tilde x_k = \argmin_{x\in\mathcal X} \gamma s \langle \nabla f(x_k), x \rangle + R(x,x_k)  \]
+
+\end{document}
