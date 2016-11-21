@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amsfonts}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[procnames]{listings}
+\usepackage{color}
+\usepackage{hyperref}
+
+
+
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{lingmacros}
+\usepackage{tree-dvips}
+
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{tabu}
+
+\usepackage{lingmacros}
+\usepackage{tree-dvips}
+\usepackage{ifthen}
+\usepackage{mdwlist}
+\DeclareMathOperator{\argmax}{argmax}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{question}{Question}
+\newtheorem{observation}{Observation}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}{Claim}
+\newtheorem{dfn}{Definition}
+\newtheorem{definition}{Definition}
+\newtheorem{corollary}{Corollary}
+%\newtheorem{question}{Question}
+\newcommand{\proofstart}{{\bf Proof\hspace{2em}}}
+\newcommand{\tset}{\mbox{$\cal T$}}
+\newcommand{\proofend}{\hspace*{\fill}\mbox{$\Box$}}
+\newcommand{\bfm}[1]{\mbox{\boldmath $#1$}}
+
+
+
+\title{EE227BT Project:
+Understanding the Continuous-Time Limit of Nesterov Acceleration}
+\author{Nilesh Tripuraneni (nilesh\_tripuraneni@berkeley.edu, 3032089919)\\ Sarah Dean (sarahdean@eecs.berkeley.edu, 3031893242)\\ Jeffrey Chan (chanjed@berkeley.edu, 24988067)\\ Aldo Pacchiano (pacchiano@berkeley.edu, 26995108)}
+
+
+
+\begin{document}
+
+
+\maketitle 
+
+\section{Background}
+
+\input{SourceFiles/bubeck}
+
+
+\section{Accelerated gradient descent }
+
+
+\input{SourceFiles/accelerated-gradient}
+
+\section{Mirror Descent}
+
+\input{SourceFiles/mirror-notes}
+
+
+\section{Notes: Accelerated Mirror Descent in Continuous Time}
+
+\input{SourceFiles/mirror-descent-ODE}
+
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+\end{document}
+
+
+
+

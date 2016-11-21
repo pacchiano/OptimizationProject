@@ -1,16 +1,6 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{fullpage}
-\usepackage{amsmath}
-\newtheorem{theorem}{Theorem}
-\newcommand{\argmin}{\operatornamewithlimits{argmin}}
 
-\title{Notes: Accelerated Mirror Descent in Continuous Time}
-\author{Sarah Dean}
-\begin{document}
-\maketitle
 
-\section{Intro, Background, References}
+\subsection{Intro, Background, References}
 Considering problems like
 \[ \min_{x\in\mathcal{X}} f(x) \]
 for convex $f$ and $\mathcal{X}$. First order methods: normal gradient descemt methods can easily be interpreted as an ODE. Then ODE theory provides guidance in algorithm design -- elegant Lyapunov arguments in continuous time analogous for discretizations. Here we combine Nesterov's accelerated method [12] with Nemirovski's mirror descent [19] (19 may be a better source on mirror descent than the book chapter). Nesterov's method applied in [23, 20, 21, 4]. Present an ODE showing that a broad family of accelerated methods can be obtained from discretization of a simple ODE (superset for Candes paper).
@@ -103,11 +93,8 @@ Quadratic functoin and log-sum-exp on the simplex problem as above. *** what are
 
 Looks like there are cool videos in the supplementary material!
 
-%\bibliographystyle{unsrt}
-%\bibliography{refs}
 
 
 
 
 
-\end{document}
