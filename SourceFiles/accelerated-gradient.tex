@@ -1,17 +1,6 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{fullpage}
-\usepackage{amsmath}
-\newtheorem{theorem}{Theorem}
 
 
-\title{EE227BT Project:
-Notes}
-\author{Nilesh Tripuraneni}
-\begin{document}
-\maketitle
-
-\section{Introduction}
+\subsection{Introduction}
 Many convex optimization methods can be interpreted as the discretization of an ordinary differential equation, whose solution trajectories approximate the steps of the optimization algorithm. The established theory of ordinary differential equations and dynamical systems can often provide insight in the design and analysis of their corresponding discrete-time optimization algorithms. Connections between have appeared etc... 
 
 \section{Summary: Candes Paper}
@@ -97,7 +86,7 @@ Classical ODE theory does unfortunately not imply the (local) existence and uniq
 This intuitive derivation is formally correct as the following theorem justifies:
 \begin{theorem}
     For any function $L$-Lipschitz function as the step-size $s \to 0$ the sequence of $x_k$ satisfying the discrete-time updates of \eqref{nesterov} converges to the solution of the ODE \eqref{ode} in the sense that \cite{su2014differential}: \\
-    \lim_{s \to 0} \max_{0 \leq k \leq \frac{T}{\sqrt{s}}} ||x_k-X(k\sqrt{s})|| = 0
+    $\lim_{s \to 0} \max_{0 \leq k \leq \frac{T}{\sqrt{s}}} ||x_k-X(k\sqrt{s})|| = 0$
 \end{theorem}
 \subsubsection{Convergence Analysis in Continuous-Time}
 Analagous to the case of gradient descent, a simply Lyapunov argument can be used to show the convergence of the Nesterov ODE to the minimizer of $f$ in continuous-time \cite{su2014differential}. As usual we consider a function $f$ that is $L$-smooth. Constructing the energy functional:
@@ -202,11 +191,6 @@ Since $\frac{2}{\sqrt{\kappa}+1} < 1$ this bound on the error is tighter than in
 
 
 
-\bibliographystyle{unsrt}
-\bibliography{refs}
 
 
 
-
-
-\end{document}

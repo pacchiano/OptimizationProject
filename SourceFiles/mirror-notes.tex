@@ -1,18 +1,6 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{fullpage}
-\usepackage{amsmath}
-\newtheorem{theorem}{Theorem}
-\newcommand{\argmin}{\operatornamewithlimits{argmin}}
-\usepackage{hyperref}
 
 
-\title{Temp Mirror Descent Notes}
-\author{Jeffrey Chan}
-\begin{document}
-\maketitle
-
-\section{Non-euclidean setting: mirror descent -- Jeffrey}
+\subsection{Non-euclidean setting: mirror descent -- Jeffrey}
 The dimension-free oracle bounds that have been discussed up until this point rely upon a well-behaved objective function $f$ and constraint set $\mathcal{X}$ in the $l_2$ norm; namely, the radius of the constraint set $R$ and Lipschitz constant of the objective function $L$ with respect to the $l_2$ norm must be independent of the ambient dimension $n$ in order to achieve a dimension-free oracle bound. In some settings, $f$ and $\mathcal{X}$ may be well-behaved with respect to an arbitrary norm $\|\cdot \|$, in which we wish to exploit the underlying structure to achieve fast convergence rates independent of the ambient dimension $n$. In this section, we provide an overview of the details of mirror descent, a method developed by \cite{blair1985problem}, which allows us to achieve a faster convergence rate for vector spaces endowed with an arbitrary norm. 
 
 
@@ -35,7 +23,7 @@ connections with Fenchel, etc
 
 Examples:
 - KL divergence
-- L_P norm
+- $L_P$ norm
 - Mutual Information/hamming distance etc
 
 \subsection{Mirror descent}
@@ -44,8 +32,3 @@ Examples:
 - Equivalent in different norms but might introduce an ambient dimension
 Adaboost connection to the entropy?
 
-\bibliographystyle{unsrt}
-\bibliography{refs}
-
-
-\end{document}

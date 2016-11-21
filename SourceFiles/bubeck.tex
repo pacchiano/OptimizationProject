@@ -1,61 +1,5 @@
-\documentclass{article}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath, amsfonts}
-\usepackage{bm}
-\usepackage{enumitem}
-\usepackage{graphicx}
-\usepackage[procnames]{listings}
-\usepackage{color}
 
-
-
-\usepackage{verbatim}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-
-\usepackage{lingmacros}
-\usepackage{tree-dvips}
-
-\usepackage{verbatim}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-
-\usepackage{tabu}
-
-\usepackage{lingmacros}
-\usepackage{tree-dvips}
-\usepackage{ifthen}
-\usepackage{mdwlist}
-\DeclareMathOperator{\argmax}{argmax}
-
-
-\newtheorem{theorem}{Theorem}
-\newtheorem{question}{Question}
-\newtheorem{observation}{Observation}
-\newtheorem{fact}[theorem]{Fact}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{claim}{Claim}
-\newtheorem{dfn}{Definition}
-\newtheorem{definition}{Definition}
-\newtheorem{corollary}{Corollary}
-%\newtheorem{question}{Question}
-\newcommand{\proofstart}{{\bf Proof\hspace{2em}}}
-\newcommand{\tset}{\mbox{$\cal T$}}
-\newcommand{\proofend}{\hspace*{\fill}\mbox{$\Box$}}
-\newcommand{\bfm}[1]{\mbox{\boldmath $#1$}}
-
-
-\title{Chapter 3 Bubeck}
-\author{Aldo Pacchiano }
-\date{September 2016}
-
-\begin{document}
-
-
-\maketitle
-
-
-\section{Dimension Free Optimization}
+\subsection{Gradient descent and its limitations}
 
 Gradient descent is an iterative optimization algorithm that can be traced back to Cauchy in 1847 that can be used to minimise a convex function $f$ over $\mathbb{R}$. The iterations evolve according to the following update equation:
 
@@ -210,9 +154,56 @@ Let $t \leq (n-1)/2 , \beta >0$, then there is a $\beta-$smooth convex function 
 
 Consider the following quadratic function:
 
+\begin{equation}
+    f(x) = \frac{\beta}{8}x^T A_{2t+1}x- \frac{\beta}{4}x^Te_1
+\end{equation}
 
 
-Write the proof. 
+Where $A_k$ is an $n\times n$ matrix defined as:
+
+\begin{equation}
+(A_k)_{i,j} = \begin{cases}
+                2  &  i = i,j \leq k \\
+                -1 &  j \in \{i-1, i+1\}, i \leq k, j \neq k+1\\
+                0 & \text{o.w.}
+            \end{cases}
+\end{equation}
+
+ 
+Define $f_k(x) = \frac{\beta}{8} x^T A_k x - \frac{\beta}{4}x^Te_1$ and for any function $g$ define $g^* = \min_{x \in \mathbb{R}} g(x)$.
+
+The matrix $A_k$ satisfies the following additional properties:
+\begin{itemize}
+\item[1] $0 \preceq A_k \preceq 4I_n$
+\item[2] $x^TA_kx = x(1)^2 + x(k)^2 + \sum_{i=1}^{k-1} (x(i)-x(i+1))^2$.
+\item[3] If $y(i) = 0$ for $i \geq r$, then $y^T A_{k} y = y^TA_{r}y$ and therefore by 2) $\nabla f(y) \in span(e_1, \cdots, e_{r})$. 
+\item[4] The minimiser $x_k^*$ of $f_k(x)$ and its optimal value $f_k^*$ satisfy:
+    \begin{align}
+        x_k^*(i) = \begin{cases}
+                    1-\frac{i}{k+1} & i = 1, \cdots, k \\
+                    0 & \text{o.w.}
+                    \end{cases}\\
+        f_k^* = -\frac{\beta}{8}\left( 1-\frac{1}{k+1}\right)
+    \end{align}
+\end{itemize}
+
+
+Notice that $x_s$ is in the span of $e_1, \cdots, e_{s-1}$.  Recall that $x_1 = 0$, and therefore that $\partial(f(x_1)) = -\frac{\beta}{4}e_1$, meaning that $x_2 \in span(e_1)$, by an inductive application of 3) we conclude that $x_s \in span(e_1, \cdots, e_{s-1})$. 
+
+Combining the previous observations we conclude the following string of inequalities:
+
+\begin{equation}
+f(x_s) - f^* = f_s(x_s) - f_{2t+1}^* \geq f_s^* - f^*_{2t+1} \geq f_t^* - f_{2t+1}^*
+\end{equation}
+
+Since $\parallel x_k^* \parallel^2 = \sum_{i=1}^k \left( \frac{i}{k+1}\right)^2 \leq \frac{k+1}{3}$ we obtain:
+
+\begin{equation}
+f_t^* - f_{2t+1}^* =\frac{\beta}{8}\left( \frac{1}{t+1} - \frac{1}{2t+2}\right) \geq \frac{3\beta}{32} \frac{\parallel x_{2t+1}*\parallel^2}{(t+1)^2}
+\end{equation}
+
+This concludes the proof. 
+
 \proofend
 
 
@@ -228,9 +219,45 @@ When $\kappa$ is large, $\left(\frac{ \sqrt{\kappa}-1}{\sqrt{\kappa}+1}\right)^{
 
 \end{theorem}
 
+\proofstart
+
+The main ideas of this proof are very similar to those used in the previous one. Denote by $A$ the infinite dimensional linear operator corresponding to an inifinite matrix with $2$ in the diagonal, and $-1$ on the upper and lower diagonals. This operator is a generalization of the finite dimensional $A_k$ operators found in the previous section. 
+
+We will show that the following $\alpha-$convex and $\beta-$smooth function:
+
+\begin{equation}
+f(x) = \frac{\alpha(\kappa-1)}{8} \left( \langle Ax, x \rangle - 2\langle e_1, x \rangle \right) + \frac{\alpha}{2} \parallel x \parallel^2
+\end{equation}
 
 
+Since $f$ is $\alpha-$strongly convex $f(x_t) - f(x^*) \geq \frac{\alpha}{2}\parallel x_t - x^*\parallel^2$. Therefore it only remains to lower bound $\parallel x_t - x^*\parallel^2$.
+
+$A$ has similar properties to its finite version, namely $0 \preceq A \preceq 4I$ and $x_t(i) =0 \forall i \geq t$. The later immediately implies that: 
+
+\begin{equation}
+\parallel x_t - x^* \parallel^2 \geq \sum_{i=t}^\infty x^*(i)^2
+\end{equation}
+
+To instantiate the lower bound we compute $x^*$. After differentiating and setting the gradient to zero we find the optimum is achieved by $x^*$ satisfying:
+
+\begin{equation}
+x^*(i) = \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} +1} \right)^i 
+\end{equation}
+
+Putting all these bound together:
+
+\begin{equation}
+f(x_t) - f(x^*) \geq \frac{\alpha}{2}\sum_{i=t}^\infty \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} +1} \right)^{2i} 
+\end{equation}
+
+Recall that $x_1 =0$. The geometric sum can be rewritten as 
+\begin{equation}
+\left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} +1} \right)^{2(t-1)} \left( \sum_{i=1}^\infty \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} +1} \right)^{2i} \right) = \left( \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa} +1} \right)^{2(t-1)} \parallel x_1 - x^* \parallel^2
+\end{equation}
+
+This concludes the proof.
+
+\proofend
 
 
-\end{document}
 
