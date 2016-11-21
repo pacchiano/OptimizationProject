@@ -1,0 +1,345 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{algpseudocode}
+\usepackage{mathtools}
+
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[]{Continuous-time Perspectives on Accelerated Gradient Descent Methods} % The short title appears at the bottom of every slide, the full title is only on the title page
+\author[Chan, Dean, Pacchiano, Tripuraneni]{Jeffrey Chan, Sarah Dean, Aldo Pacchiano, Nilesh Tripuraneni} % Your name
+\institute[UCB] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{Department of EECS,
+University of California, Berkeley }
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+\section{Introduction} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+%------------------------------------------------
+
+%------------------------------------------------
+\section{Background}
+
+\subsection{Nesterov's Acceleration}
+Aldo stuff
+
+
+\begin{frame}
+\frametitle{An ODE for ``Annealed" Nesterov Acceleration \citep{su2014differential}}
+\begin{block}{Limit of ``Accelerated" Gradient Descent}
+\begin{center}
+\begin{rcases*}
+    x_k &= y_{k-1} - s \nabla f(y_{k-1})\\
+    y_k &= x_k + \frac{k-1}{k+2} (x_k - x_{k-1}) 
+\end{rcases*} \overset{s \to 0}{\longrightarrow} \underbrace{\ddot{X}}_{``mass"} + \underbrace{\frac{3}{t} \dot{X}}_{``dampling"} + \underbrace{\nabla f(X)}_{``force"} = 0
+\end{center}
+\begin{itemize}
+    \item ``Small" $t$: large ``damping" leads to over-damped system quickly decaying to equilibrium
+    \item "Large" $t$: small "dampling" leads to decreasing oscillations towards optima
+\end{itemize}
+
+\end{block}
+\pause
+
+\begin{block}{"Time" Parameter -- $t = k \sqrt{s}$}
+$x_k \approx X(k \sqrt{s})$
+for the continuous-time curve $X(t)$.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{An ODE for ``Annealed" Nesterov Acceleration \citep{su2014differential}}
+Minimizing $f(x_1, x_2) = 0.02 x_1^2 + 0.005 x_2^2$.
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{SourceFiles/images002.png}
+\caption{From Beaumont (2010).}
+\end{figure}
+
+\begin{block}{"Time" Parameter -- $t = k \sqrt{s}$}
+$x_k \approx X(k \sqrt{s})$
+for the continuous-time curve $X(t)$.
+\end{block}
+\end{frame}
+
+
+
+
+\subsection{Accelerated Mirror Descent}
+% - Formulate the Lyapanov function
+% - A natural non-Euclidean generalization(ball setup, simplex) of the squared Euclidean norm is the Bregman Divergence(KL divergence is an example)
+
+% - Mirror Descent:
+\subsection{Mirror Descent ODE}
+% - 
+%------------------------------------------------
+
+%------------------------------------------------
+\section{Plots}
+
+
+
+%-------------------FORMATTING STUFF--------------
+\begin{frame}
+\frametitle{Traditional Bayesian Inference}
+\begin{block}{Bayes Rule}
+\begin{align*}
+P(\theta \mid X) &= \frac{P(X \mid \theta)P(\theta)}{P(X)} \\
+				 &\propto P(X \mid \theta)P(\theta) 
+\end{align*}
+\end{block}
+\pause
+
+\begin{block}{More Complex Models}
+\begin{itemize}
+\item Markov Chain Monte Carlo
+\item Variational Inference
+\item Expectation Propagation
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Likelihood-free Inference}
+
+\begin{itemize}
+\item Standard approximation techniques require knowledge of the structure of the likelihood
+\pause
+\item Sometimes when performing inference on physical phenomena, this structure is unknown to us.
+\pause
+\item However, often we are able to replicate the phenomena by simulating data from parameters
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+\section{ABC and its Variants}
+\subsection{Approximate Bayesian Computation}
+\begin{frame}
+\frametitle{Approximate Bayesian Computation}
+More concretely, given
+\begin{itemize}
+\item Observed data: $Y$
+\item Simulated data: Samples $X \sim P(X \mid \theta)$ for a given parameter $\theta$
+\end{itemize}
+
+\begin{block}{Main Idea}
+Augment the posterior computation with auxilary data $X$,
+$$P_{ABC}(\theta \mid Y) \propto P(\theta)\int_X \pi(Y \mid X, \theta) P(X \mid \theta)$$
+\end{block}
+Only able to recover posterior if likelihood ``importance'' weight $\pi(Y \mid X, \theta)$ is a point mass at $Y = X$ and zero elsewhere.
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Rejection ABC Algorithm (Pritchard et al, 1997)}
+Let's use a Monte Carlo approximation for the integral
+\begin{enumerate}
+\item Sample from the prior $\theta_i \sim P(\theta)$
+\item Simulate $X_i \sim P(X_i \mid \theta_i)$
+\item If $X_i = Y$, keep $\theta_i$
+\item Else, reject. 
+\item Repeat $N$ times and return the empirical distribution of the $\theta_i$
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Concessions in Rejection ABC}
+\begin{block}{Concession 1}
+In many scenarios (e.g. continuous), we never achieve $X = Y$, so we approximate with
+\[
+\pi_{\epsilon}(Y \mid X, \theta) = \begin{cases} 1 & \|Y - X_i\| < \epsilon \\ 
+0 & \mbox{otherwise} \end{cases}
+\]
+\end{block}
+\pause
+\begin{block}{Concession 2}
+For high dimensional data, reject if $\|S(Y) - S(X_i)\| > \epsilon$
+where $S(\cdot)$ is a low-dimensional summary statistic.
+\end{block}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{ABC}
+% Beaumont(2010) - Approximate Bayesian Computation in Evolution and Ecology
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{images/images001.png}
+\caption{From Beaumont (2010).}
+\end{figure}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+\frametitle{Errors introduced in ABC}
+\begin{itemize}
+\item Monte Carlo error
+\item Gap between summary statistics and sufficient statistics
+\item $\epsilon$-kernel error
+\end{itemize}
+\end{frame}
+
+%-------------------------------------------------
+
+\subsection{Markov Chain Monte Carlo ABC}
+\begin{frame}
+\frametitle{Markov Chain Monte Carlo ABC (Marjoram et al, 2003)}
+\begin{block}{Main Idea}
+Rejection might be too slow due to mismatch of prior and target posterior (acceptance rate for simple coalescent tree is \alert{$~0.0008\%$}). Is there a way that we can stay near equally likely values of $\theta$ once we find a good one?
+\end{block}
+\pause
+\begin{enumerate}
+\item Initialize $(\theta_0, X_0)$
+\item Generate $\theta' \sim q(\theta_i, \theta)$ from a proposal distribution
+\item Simulate $X' \sim P(X \mid \theta')$.
+\item Set $(\theta_i, X_i) = (\theta', X')$ if $\|S(X') - S(Y)\| < \epsilon$ and increment $i$ with probability
+$$\min \{1, \frac{\pi(Y \mid X', \theta') P(\theta') q(\theta' \mid \theta_t)}{\pi(Y \mid X_i, \theta_i) P(\theta_i) q(\theta_i \mid \theta')} \}$$
+\item Return to step 2 until $i = N$
+\end{enumerate}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{MCMC-ABC}
+% Beaumont(2010) - Approximate Bayesian Computation in Evolution and Ecology
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{images/images002.png}
+\caption{From Beaumont (2010).}
+\end{figure}
+\end{frame}
+
+%-------------------------------------------------
+
+\subsection{Sequential Monte Carlo ABC}
+\begin{frame}
+\frametitle{Sequential Monte Carlo ABC (Sisson et al, 2007)}
+\begin{block}{Main Idea}
+MCMC-ABC can often get ``stuck'' in certain regions of low probability and cannot handle complex multimodal distributions very well. The samples are too correlated. Can we utilize a popultion-wide approach?
+\end{block}
+\pause
+\begin{enumerate}
+\item Initialize a population of $N$ particles $\theta_0^{(i)} \sim P(\theta)$. Sample new populations for $t = 0, \cdots, T$ time steps
+\item At time $t$, for each particle sampling step $i < N$, do a weighted sample $W_{t-1}^{(1)} \cdots W_{t-1}^{(N)}$ from the previous population of particles
+\item Perturb the sampled particle $\theta'$ according to a transition kernel $K(\cdot \mid \cdot)$
+\item Simulate a dataset from the sampled particle $X' \sim P(X \mid \theta')$.
+\item If $\|S(X') - S(Y)\| < \epsilon$, then add $\theta'$ to the population and set the sampling weight to the importance weight:
+$$W_t^{(i)} \frac{P(\theta_t^{(i)})}{\sum_j W_{t-1}^{(j)}K(\theta_{t}^{(i)} \mid \theta_{t-1}^{(j)})}$$
+\end{enumerate}
+\end{frame}
+
+%-------------------------------------------------
+
+\begin{frame}
+\frametitle{SMC-ABC}
+% Beaumont(2010) - Approximate Bayesian Computation in Evolution and Ecology
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{images/images003.png}
+\caption{From Beaumont (2010).}
+\end{figure}
+\end{frame}
+\end{document}
+
