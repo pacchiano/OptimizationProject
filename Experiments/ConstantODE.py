@@ -5,7 +5,7 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 from target_funcs import f_quad, grad_f_quad
-from utils import plot_mult_traj, plot_traj, plot_errors
+from utils import plot_mult_traj, plot_errors
 
 def Constant_ODE(X_0, t=500.0, nabla_f=None, rt_kappa=3.0):
     # We order such \dot{X} is first and \dot{Y} is second
@@ -47,14 +47,6 @@ def Nesterov_GD(X_0, s=2.0, t=500.0, nabla_f=None, rt_kappa=3.0):
 
     t = np.array(range(1, K+1))
     return t, X, Y
-
-def f_quad(X):
-
-    return .02*np.power(X[0],2) + .005*np.power(X[1],2)
-
-def grad_f_quad(X):
-
-    return np.array([.04*X[0], .01*X[1]])
 
 def run_ODE_and_GD():
 
