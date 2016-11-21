@@ -5,7 +5,7 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 from target_funcs import f_quad, grad_f_quad
-from utils import plot_mult_traj, plot_traj, plot_errors
+from utils import plot_mult_traj, plot_errors
 
 def Nesterov_ODE(X_0, t=300.0, r=3.0, nabla_f=None):
     # We order such \dot{X} is first and \dot{Y} is second
@@ -36,7 +36,7 @@ def Nesterov_ODE(X_0, t=300.0, r=3.0, nabla_f=None):
 
     return t, Ss
 
-def Nesterov_GD(X_0, s=0.001, t=300.0, nabla_f=None):
+def Nesterov_GD(X_0, s=0.001, t=300.0, r=3.0, nabla_f=None):
 
     K = int(t/np.power(s, .5)) # t=k \sqrt{s}
     dim = X_0.shape[0]
@@ -50,7 +50,7 @@ def Nesterov_GD(X_0, s=0.001, t=300.0, nabla_f=None):
 
     for k in xrange(1, K):
         X[k, :] = Y[k-1, :] - 1.0*s*nabla_f(Y[k-1, :])
-        Y[k, :] = X[k, :] + 1.0*(k-1)/(k+2)*(X[k, :] - X[k-1, :])
+        Y[k, :] = X[k, :] + 1.0*(k-1)/(k+r-1)*(X[k, :] - X[k-1, :])
 
     t = np.array(range(1, K+1))*math.pow(s,.5)
     return t, X, Y

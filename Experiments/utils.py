@@ -5,20 +5,6 @@ from matplotlib.pyplot import figure, show, legend, xlabel, ylabel, errorbar, xl
 
 from target_funcs import f_quad, grad_f_quad
 
-def plot_traj_instab(X, show=False, save=False, path=None):
-
-    L = X[:,0]
-    R = Xs[:,1]
-
-    fig = plt.figure(figsize=(5,5))
-    plt.plot(L, R, linestyle="solid", linewidth = 1.0, color="red")
-    plt.xlabel("$X_1$")
-    plt.ylabel("$X_2$")
-    if save:
-        plt.savefig(path, format="eps")
-    if show:
-        plt.show()
-
 def plot_mult_traj(X, Y, Z, titles=None, show=False, save=False, path=None):
 
     L1 = X[:,0]
