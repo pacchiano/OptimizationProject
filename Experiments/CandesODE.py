@@ -4,13 +4,16 @@ import math
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-def Nesterov_ODE(X_0, t=300.0, nabla_f=None):
+from target_funcs import f_quad, grad_f_quad
+from utils import plot_mult_traj, plot_traj, plot_errors
+
+def Nesterov_ODE(X_0, t=300.0, r=3.0, nabla_f=None):
     # We order such \dot{X} is first and \dot{Y} is second
 
     dim = X_0.shape[0]
     S_0 = np.hstack((X_0,  np.zeros(dim)))
 
-    def dS_dt(S, t, r=3.0):
+    def dS_dt(S, t, r=r):
 
         X = S[:dim]
         Y = S[dim:]
@@ -24,7 +27,8 @@ def Nesterov_ODE(X_0, t=300.0, nabla_f=None):
 
         return dS
 
-    t_min = 0.0001
+    epsilon = 0.0001
+    t_min = epsilon
     t_max = t_min + t
     num_pts = 10000
     t = np.linspace(t_min, t_max, num_pts)
@@ -34,77 +38,40 @@ def Nesterov_ODE(X_0, t=300.0, nabla_f=None):
 
 def Nesterov_GD(X_0, s=0.001, t=300.0, nabla_f=None):
 
-    k = int(t/np.power(s, .5)) # t=k \sqrt{s}
-    print k
+    K = int(t/np.power(s, .5)) # t=k \sqrt{s}
     dim = X_0.shape[0]
 
-    X = np.zeros((k, dim))
-    Y = np.zeros((k, dim))
+    X = np.zeros((K, dim))
+    Y = np.zeros((K, dim))
 
     Y_0 = X_0
     X[0, :] = X_0
     Y[0, :] = Y_0
 
-    for k in xrange(1, k):
-        X[k, :] = Y[k-1, :] - s*nabla_f(Y[k-1, :])
-        Y[k, :] = X[k, :] + (k-1)/(k+2)*(X[k, :] - X[k-1, :])
+    for k in xrange(1, K):
+        X[k, :] = Y[k-1, :] - 1.0*s*nabla_f(Y[k-1, :])
+        Y[k, :] = X[k, :] + 1.0*(k-1)/(k+2)*(X[k, :] - X[k-1, :])
 
-    return X, Y
+    t = np.array(range(1, K+1))*math.pow(s,.5)
+    return t, X, Y
 
-def plot_traj(Xs, show=False, save=False, path=None):
+def run_ODE_and_GD():
 
-    L = Xs[:,0]
-    R = Xs[:,1]
+    X_i = np.array([1.0, 1.0])
+    dim = X_i.shape[0]
+    t1, Ss = Nesterov_ODE(X_i, r=3.0, nabla_f=grad_f_quad)
+    X1 = Ss[:,:dim]
 
-    fig = plt.figure(figsize=(5,5))
-    plt.plot(L, R, linestyle="solid", linewidth = 1.0, color="red")
-    plt.xlabel("$X_1$")
-    plt.ylabel("$X_2$")
-    if save:
-        plt.savefig(path, format="eps")
-    if show:
-        plt.show()
+    t2, X2, Y2 = Nesterov_GD(X_i, s=2.0, t=300.0, nabla_f=grad_f_quad)
+    t3, X3, Y3 = Nesterov_GD(X_i, s=0.25, t=300.0, nabla_f=grad_f_quad)
+    titles = ["ODE", "s=2.0", "s=0.25"]
+    plot_mult_traj(X1, X2, X3, titles, show=True, save=True, path="./quadratic_traj_compare_annealed.eps")
+    plot_errors(t1, X1, t2, X2, t3, X3, titles, show=True, save=True, path="./quadratic_errors_compare_annealed.eps")
 
-def plot_errors(t, Xs, show=False, save=False, path=None):
-
-    fig = plt.figure(figsize=(5,5))
-    errors = np.log(map(f_quad, Xs))
-    plt.plot(t, errors, linestyle="solid", linewidth = 1.0, color="black")
-    plt.xlabel("$t$")
-    plt.ylabel("Log Error")
-    if save:
-        plt.savefig(path, format="eps")
-    if show:
-        plt.show()
-
-def f_quad(X):
-
-    return .02*np.power(X[0],2) + .005*np.power(X[1],2)
-
-def grad_f_quad(X):
-
-    return np.array([.04*X[0], .01*X[1]])
-
-def run_ODE():
-
-    X_0 = np.array([1.0, 1.0])
-    dim = X_0.shape[0]
-    t, Ss = Nesterov_ODE(X_0, nabla_f=grad_f_quad)
-    Xs = Ss[:,:dim]
-    plot_errors(t, Xs, show=True, save=True, path="./quadratic_errors.eps")
-    plot_traj(Xs, show=True, save=True, path="./quadratic_traj.eps")
-
-def run_GD():
-
-    X_0 = np.array([1.0, 1.0])
-    dim = X_0.shape[0]
-    X, Y = Nesterov_GD(X_0, s=10.0, t=3000.0, nabla_f=grad_f_quad)
-    #plot_errors(t, Y, show=True, save=False, path="./quadratic_errors.eps")
-    plot_traj(Y, show=True, save=False, path="./quadratic_traj.eps")
 
 def main():
 
-    run_GD()
+    run_ODE_and_GD()
 
 if __name__ == "__main__":
     main()
