@@ -4,13 +4,17 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 #### GLOBALS ####
-rv_a = np.random.normal(size=1000)
-rv_b = np.random.normal(size=100)
-rv_q = np.random.normal(size=100)
-A = np.reshape(rv_a,(100,10)) # I x n matrix of iid normal rv 
-b = np.reshape(rv_b, (100,1))# I length matrix of iid normal rv
-Q = np.reshape(rv_q, (10,10)) # Random matrix
-xstar = np.array([5,5,5,5,5,5,5,5,5,5])
+I = 100# num_logsumexp_terms
+n = 2# dimension of x
+xstar = np.array([0.75,0.25])
+assert len(xstar) == n
+rv_a = np.random.normal(size=I*n)
+rv_b = np.random.normal(size=I)
+rv_q = np.random.normal(size=n*n)
+A = np.reshape(rv_a,(I,n)) # I x n matrix of iid normal rv 
+b = np.reshape(rv_b, (I,1))# I length matrix of iid normal rv
+Q = np.reshape(rv_q, (n,n)) # Random matrix
+Q = Q.T.dot(Q)
 #################
 
 # Takes in z_0 a
@@ -26,18 +30,21 @@ def mirror_ode(z_0, nabla_f, t = 300.0):
     ts = np.linspace(t_min, t_max, num_pts)
     zs = odeint(dzdt, np.ravel(z_0), ts)
 
-    xs = grad_potential(zs)
+    # Convert to xs
+    print zs.shape
+    xs = np.apply_along_axis(grad_potential, 1 ,zs)
 
     return ts, xs, zs
 
 
-# def f_quadratic(X):
-#     assert X.shape[1] == 1
-#     return (x - xstar).dot(Q.dot(x - xstar))
+def f_quadratic(X):
+    X = X.reshape((len(X),1))
+    xstar_vec = xstar.reshape((len(xstar),1))
+    return np.ravel((X - xstar_vec).T.dot(Q.dot(X - xstar_vec)))
 
-# def f_logsumexp(X):
-#     assert X.shape[1] == 1
-#     return np.log(np.sum(np.exp(A.dot(X) + b)))
+def f_logsumexp(X):
+    X = X.reshape((len(X),1))
+    return np.log(np.sum(np.exp(A.dot(X) + b)))
 
 def gradf_quadratic(X):
     X = X.reshape((len(X),1))
@@ -56,11 +63,31 @@ def grad_potential(z):
     e = np.exp(z - np.max(z))  # prevent overflow
     return e / np.sum(e)
 
+def run_logsum_mirror_ode():
+    z_0 = np.ones((n,1)) # Dummy variable for now
 
-def run_mirror_ode():
-    z_0 = np.ones((10,1)) # Dummy variable for now
+    # Run for a long time to numerically compute optimum
+    ts, xs, zs  = mirror_ode(z_0, gradf_logsumexp, t=10000)
+    x_max = xs[-1,:]
+
+    ts, xs, zs  = mirror_ode(z_0, gradf_logsumexp)
+    fs = np.apply_along_axis(f_logsumexp, 1, xs)
+    plt.plot(ts, np.log(fs - f_logsumexp(x_max)), linestyle="solid", linewidth = 1.0, color="red")
+    plt.xlabel("$t$", fontsize=24)
+    plt.ylabel("Log Error", fontsize=24)
+    plt.title("Logsumexp Mirror Descent ODE", fontsize = 24)
+    plt.show()
+
+
+def run_quad_mirror_ode():
+    z_0 = np.ones((n,1)) # Dummy variable for now
     ts, xs, zs  = mirror_ode(z_0, gradf_quadratic)
-    print xs
+    fs = np.apply_along_axis(f_quadratic, 1, xs)
+    plt.plot(ts, np.log(fs - f_quadratic(xstar)), linestyle="solid", linewidth = 1.0, color="red")
+    plt.xlabel("$t$", fontsize=24)
+    plt.ylabel("Log Error", fontsize=24)
+    plt.title("Quadratic Mirror Descent ODE", fontsize = 24)
+    plt.show()
 
-run_mirror_ode()
+run_logsum_mirror_ode()
 
