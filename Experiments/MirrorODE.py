@@ -17,6 +17,37 @@ Q = np.reshape(rv_q, (n,n)) # Random matrix
 Q = Q.T.dot(Q)
 #################
 
+
+def amd_ode(z_0, nabla_f, t = 300.0, r = 3.0):
+    z_0 = np.ravel(z_0)
+    x_0 = np.ravel(grad_potential(z_0))
+    dim = x_0.shape[0]
+    s_0 = np.hstack((x_0,z_0))
+    print x_0.shape
+    print z_0.shape
+    print s_0.shape
+    def dsdt(s, t):
+        x = s[:dim]
+        z = s[dim:]
+
+        ds = np.zeros(len(s))
+
+        ds[:dim] = (r/t)*(grad_potential(z) - x)
+        ds[dim:] = (-t/r)*nabla_f(x)
+
+        return ds
+
+    epsilon = 0.0001
+    t_min = epsilon
+    t_max = t_min + t
+    num_pts = 10000
+    ts = np.linspace(t_min, t_max, num_pts)
+    ss = odeint(dsdt, s_0, ts)
+
+    return ts, ss[:,:dim], ss[:,dim:]
+
+
+
 # Takes in z_0 a
 def mirror_ode(z_0, nabla_f, t = 300.0):
     assert z_0.shape[1] == 1
@@ -67,10 +98,10 @@ def run_logsum_mirror_ode():
     z_0 = np.ones((n,1)) # Dummy variable for now
 
     # Run for a long time to numerically compute optimum
-    ts, xs, zs  = mirror_ode(z_0, gradf_logsumexp, t=10000)
+    ts, xs, zs  = amd_ode(z_0, gradf_logsumexp, t=100000)
     x_max = xs[-1,:]
 
-    ts, xs, zs  = mirror_ode(z_0, gradf_logsumexp)
+    ts, xs, zs  = amd_ode(z_0, gradf_logsumexp)
     fs = np.apply_along_axis(f_logsumexp, 1, xs)
     plt.plot(ts, np.log(fs - f_logsumexp(x_max)), linestyle="solid", linewidth = 1.0, color="red")
     plt.xlabel("$t$", fontsize=24)
@@ -81,7 +112,7 @@ def run_logsum_mirror_ode():
 
 def run_quad_mirror_ode():
     z_0 = np.ones((n,1)) # Dummy variable for now
-    ts, xs, zs  = mirror_ode(z_0, gradf_quadratic)
+    ts, xs, zs  = amd_ode(z_0, gradf_quadratic)
     fs = np.apply_along_axis(f_quadratic, 1, xs)
     plt.plot(ts, np.log(fs - f_quadratic(xstar)), linestyle="solid", linewidth = 1.0, color="red")
     plt.xlabel("$t$", fontsize=24)
