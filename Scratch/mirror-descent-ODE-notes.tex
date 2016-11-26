@@ -1,17 +1,26 @@
-The notions of a dual space and mirror descent can be combined with the insights from the Nesterov continuous-time ODE in an elegant way to provide a derivation of mirror descent and accelerated mirror descent. We can ultimately present an ODE showing that a broad family of accelerated methods can be obtained from discretization of a simple ODE (superset for Candes paper).
+
+
+\subsection{Intro, Background, References}
+Considering problems like
+\[ \min_{x\in\mathcal{X}} f(x) \]
+for convex $f$ and $\mathcal{X}$. First order methods: normal gradient descemt methods can easily be interpreted as an ODE. Then ODE theory provides guidance in algorithm design -- elegant Lyapunov arguments in continuous time analogous for discretizations. Here we combine Nesterov's accelerated method [12] with Nemirovski's mirror descent [19] (19 may be a better source on mirror descent than the book chapter). Nesterov's method applied in [23, 20, 21, 4]. Present an ODE showing that a broad family of accelerated methods can be obtained from discretization of a simple ODE (superset for Candes paper).
+
+\subsection{Relevant Sources}
+\begin{enumerate}
+    \item Nemirovski's mirror descent [19]
+    \item applications of acceleration [23, 20, 21, 4] (ideas for experiments and stuffing for the intro of our paper)
+    \item Ch 11.2 in [11] or Appendix A in [2] for Bregman
+    \item forward/backward Euler scheme in Ch 2 [10]
+\end{enumerate}
 
 \subsection{Lyapunov Argument}
-Recap the importance of this alrgoithm as used above and recap connectino to the standard gradient descent.
-
 The convergence rates for ODEs $X(t)$ and discrete time algorithms $X_k$ are analyzed by an argument involving a Lyapunov function $V(X)$ which must be nonnegative and decreasing wrt $t$. For example, in normal gradient descent we have $\dot X(t) = -\nabla f(X(t))$, $V(
 X) = \frac{1}{2}\|X(t)-x^*\|^2$
 \[\dot V(X(t)) = \langle  -\nabla f(X(t)), X(t) - x^*\rangle \leq -(f(X(t)) - f^*)\]
 \[ V(X(t)) - V(x_0) \leq tf^* - \int_0^t f(X(t))dt \leq tf^* - f\left(\int_0^t X(t)dt\right) \implies  f^* - f\left(\frac{1}{t}\int_0^t X(t)dt\right) \leq \frac{V(x_0)}{t} \]
 Thus the general method is to find a Lyapunov function, then integrate and rearrange to find a convergence rate.
 
-\subsubsection{Mirror Descent}
-extention of normal gradient descent to mirror descent 
-
+\subsection{Mirror Descent}
 Consider the Lyapunov function as a generator for these first order methods -- choose $V$ and then design dynamics of $X$. Replace the $V(X)$ above with a function on the dual space for $Z$, $X(t) = \nabla\psi^*(Z(t))$, $\psi$ convex
 \[V(Z(t)) = D_{\psi^*} (Z(t), z^*)\]
 This is the Bregman divergence: 
@@ -21,14 +30,11 @@ Can have properties such as \textit{l} strongly convex or $L$ smooth. We find th
 So $\dot Z = -\nabla f(X)$ follows argument above, recovering mirror descent, defined (with consisdent starting point)
 \[X = \nabla\psi^*(Z), \quad \dot Z = -\nabla f(X)\]
 
-make the connection to the mirror descent as presented by Jeff above
-
-\subsection{Accelerated Mirror Descent}
+\section{Continuous Time Accelerated Mirror Descent}
 We can view Candes paper as revolving around the Lyapunov function 
 \[\mathcal{E}(t) = \frac{t^2}{r} (f(X) - f^*) + \frac{r}{2} \|X+\frac{t}{r}\dot X - x^* \|^2\]
-we noow follow the steps above to generalize this ODE to a mirror descent setting.
 
-\subsubsection{Derivation}
+\subsection{Derivation of continuous-time mirror descent}
 We propose the function
 \[ V(X(t),Z(t),t) = \frac{t^2}{r} (f(X(t)) - f^*) + r D_{\phi^*} (Z(t) z^*) \]
 If we take the time derivative and chose dynamics $\dot Z = -\frac{t}{r} \nabla f(X)$, and also $\nabla \psi^*(Z) = X + \frac{t}{r} \dot X$ $\nabla \psi^*(z^*) = x^*$ (*** intuitively what can we say about $\psi^*$)
@@ -36,20 +42,20 @@ If we take the time derivative and chose dynamics $\dot Z = -\frac{t}{r} \nabla 
 Then $V$ is Lyapunov for $r\geq 2$. Proposed system, for $X(0) = x_0 = \nabla \psi^*(z_0), Z(0) = z_0$
 \[ \dot X = \frac{r}{t} (\nabla \psi^*(Z) - X),\quad \dot Z = -\frac{t}{r} \nabla f(X) \]
 
-\subsubsection{ODE solution sketch}
-The Cauchy-Lipshitze existance and uniqueness theorem does not apply because of the singularity at $t=0$, so consider a sequence of approximating ODEs instead, as in Candes paper. Basically, replace $t$ in the denominator with $\max (t,\delta)$ In this process, we assume that $\nabla f$ is $L_f$-Lipschitz. and $\psi^*$ is $L_{\psi^*}$ smooth or equivalently $\nabla \psi^*$ is $L_{\psi^*}$-Lipschitz.
-
-\subsubsection{Convergence rate}
-By construction of the Lyapunov function, easy to see that
-\[ \frac{t^2}{r} (f(X(t)) - f^*) \leq V(X(t),Z(t),t) \leq  V(x_0,z_0,0)  = rD_{\psi^*}(z_0,z^*) \]
-
-\subsubsection{Continuous-time averaging interpretation}
+\subsection{Continuous-time averaging interpretation}
 In integral form, we can write
 \[ X(t) = \frac{\int_0^t \tau^{r-1} \nabla\psi^*(Z(\tau)) d\tau}{\int_0^t \tau^{r-1}} \]
 So the dual variable $Z$ accumulates gradients with a $\frac{t}{r}$ rate, and primal $X$ is a weighted average of $\nabla\psi^*(Z)$, with weights determined by $t^{r-1}$. Here, it is clear that the primal trajectory remains in $\mathcal X$ because it is convex and $\nabla\psi^*$ maps into $\mathcal X$.
 
-\subsection{Discretization}
-\subsubsection{Euler scheme}
+\subsection{ODE solution sketch}
+The Cauchy-Lipshitze existance and uniqueness theorem does not apply because of the singularity at $t=0$, so consider a sequence of approximating ODEs instead, as in Candes paper. Basically, replace $t$ in the denominator with $\max (t,\delta)$ In this process, we assume that $\nabla f$ is $L_f$-Lipschitz. and $\psi^*$ is $L_{\psi^*}$ smooth or equivalently $\nabla \psi^*$ is $L_{\psi^*}$-Lipschitz.
+
+\subsection{Convergence rate}
+By construction of the Lyapunov function, easy to see that
+\[ \frac{t^2}{r} (f(X(t)) - f^*) \leq V(X(t),Z(t),t) \leq  V(x_0,z_0,0)  = rD_{\psi^*}(z_0,z^*) \]
+
+\section{Discretization}
+\subsection{Euler scheme}
 Mixed forward/backward Euler scheme using step size $\sqrt{s}$ so $t_k = k\sqrt{s}$. (why $k+1$ on the $x$?)
 \[ \frac{x_{k+1} - x_k}{\sqrt{s}} = \frac{r}{k\sqrt{s}} (\nabla \psi^*(z_k) - x_{k+1}),\quad \frac{z_{k+1} - z_k}{\sqrt{s}} = -\frac{k\sqrt{s}}{r} \nabla f(x_{k+1}) \]
 Simplifying, we get (with $\lambda_k = \frac{r}{r+k}$)
@@ -62,7 +68,7 @@ Then to analyze, start with analogous potential function
 Through some manipulations, we find that there is an extra term that prevents us from concluding that it is a Lyapunov function. (** with numerical experiments, would this descretized version work?)
 \[ E_{k+1} - E_k \leq -\frac{s[(r-2)k-1]}{r} (f(x_{k+1}) - f^*) + rD_{\psi^*}(z_{z+1},z^*) \]
 
-\subsubsection{Proposed discretization}
+\subsection{Proposed discretization}
 We make an alteration such that in the $x$ update, we replace $x_k$ with 
 \[\tilde x_k = \argmin_{x\in\mathcal X} \gamma s \langle \nabla f(x_k), x \rangle + R(x,x_k)  \]
 for a regularization function $R$ *** extend: are there other functions $R$ we could try other than what was proposed here: a distance function $D_\phi (x,x')$. It must be true that $\frac{l_R}{r} \|x-x'\|^2 \leq R(x,x') \leq \frac{L_R}{2} \|x-x'\|^2$
@@ -76,13 +82,13 @@ The convergence rate is then shown for an energy function $\tilde E_k = V(\tilde
 
 Conditions on this convergence crop up for $\gamma$ and $s$
 
-\subsection{Example and Numerical Experiments}
-\subsubsection{Entropic descent: simplex constrained problems}
+\section{Example and Numerical Experiments}
+\subsection{Entropic descent: simplex constrained problems}
 If we have a simplex constrained problem, we can take $\psi$ to be the negative entropy on a simplex. ***what are another analogous constraints that can be encoded in this way***
 
 The function $\psi$ include $\delta$ to satisfy the constraint, and $\psi^*$ can be computed explicitly. Then mirror descent take $O(n)$ while $\phi^*$ is smooth for l$\infty$. Then take $R(x,y) = D_\phi(x,y)$ for $\phi$ a smoothed negative entropy function. $\nabla \phi^*$ can be computed in $O(n\log n)$, or $O(n)$ for radnomized alg. 
 
-\subsubsection{Numerical Experiments}
+\subsection{Numerical Experiments}
 Quadratic functoin and log-sum-exp on the simplex problem as above. *** what are applications of the simplex constraint**. Plots show accelerated, non-accelerated, as well as two faster algorithms with restarting mechanisms. 
 
 Looks like there are cool videos in the supplementary material!

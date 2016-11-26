@@ -4,7 +4,7 @@
 Many convex optimization methods can be interpreted as the discretization of an ordinary differential equation, whose solution trajectories approximate the steps of the optimization algorithm. The established theory of ordinary differential equations and dynamical systems can often provide insight in the design and analysis of their corresponding discrete-time optimization algorithms. Connections between have appeared etc... 
 
 \section{Summary: Candes Paper}
-\subsection{Informal Derivation of the Gradient Descent ODE}
+\subsection{Derivation of the Gradient Descent ODE}
 We first consider the discrete-time gradient descent updates for the $L$-smooth (equivalent to $L$-Lipschitz gradients) and convex function $f$:
 \begin{align*}
     x_{k+1} = x_k - s \nabla f(x_k) 
@@ -27,6 +27,7 @@ Matching terms at lowest order we obtain the continuous-time gradient flow:
 \end{align}
 Assuming the $f(X)$ has Lipschitz gradients the (local) existence and uniqueness of solutions to this ODE follows immediately from the Cauchy-Lipschitz theorem \cite{teschl2012ordinary}.
 \subsubsection{Convergence Analysis in Continuous-Time}
+\subsection{Weakly Convex Case}
 Proving convergence of the solution trajectories of an ODE can often be achieved using an intuitive Lyapunov argument. In the simple case of gradient descent, considering the Lyapunov (or energy) functional:
 \begin{align*}
     \mathcal{E}(X(t), t) = t (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2
@@ -43,6 +44,43 @@ where by convexity we have that $f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t)
 \end{align*}
 which shows that $f(X(t)) \to f(x^*)$ at a $\mathcal{O}(1/t)$ convergence rate matching the $\mathcal{O}(k)$ convergence rate of gradient descent for convex, $\beta$-smooth functions \cite{DBLP:journals/ftml/Bubeck15}.
 
+\subsection{Strongly Convex Case}
+To the best of our knowledge, we have not seen an  explicit proof of the exponential convergence rate of the gradient descent ODE for strongly convex functions in the literature. We provide a Lyapunov functional and convergence proof here since it is a useful warm-up for analyzing ``constant" Nesterov acceleration applied to strongly convex functions.
+
+For an $\alpha$-strongly convex function consider the Lyapunov functional:
+\begin{align*}
+    \mathcal{E}(X(t), t) = e^{\alpha t} \underbrace{\left[ f(X(t)) - f(x^*) + \frac{1}{2}||X(t)-x^*||^2 \right]}_{E(X(t), t)}
+\end{align*}
+Here $x^*$ is the unique global minimizer of the convex function $f$. Direct computation shows that we have:
+\begin{align*}
+    & \dot{\mathcal{E}}(X(t), t) = \alpha e^{\alpha t} E(X(t), t) + e^{\alpha t} \dot{E}(X(t), t) \implies \\ 
+    & \dot{\mathcal{E}}(X(t), t) \leq 0 \iff \dot{E}(X(t), t) \leq -\alpha E(X(t), t)
+\end{align*}
+$\alpha$-strong convexity of $f$ gives that $f(x^*) \geq f(X(t)) + \langle \nabla f(X(t)), x^*-X(t) \rangle + \alpha/2 ||x^*-X(t)||_2^2$. Thus we obtain that:
+\begin{align*}
+    & \dot{E}(X(t), t) = \langle \nabla f(X(t)), \dot{X} \rangle + \langle X(t) - x^*, \dot{X}(t) \rangle = - \langle \nabla  f(X(t)), \nabla f(X(t)) \rangle - \langle X(t) - x^*, \nabla f(X(t)) \rangle = \\
+    & -||\nabla f(X(t))||_2^2 +\langle \nabla f(X(t)), x^*-X(t) \rangle \leq -||\nabla f(X(t))||_2^2 - (f(X(t)) - f(x^*)) - \alpha/2 ||x^*-X(t)||_2^2 = \\
+    & -||\nabla f(X(t))||_2^2 - (f(X(t)) - f(x^*)) - \alpha/2 ||x^*-X(t)||_2^2 + \alpha E(X(t), t) - \alpha E(X(t), t) = \\
+    & -||\nabla f(X(t))||_2^2 - (f(X(t)) - f(x^*)) + \alpha (f(X(t)) - f(x^*)) -\alpha E(X(t), t)
+\end{align*}
+We now appeal to the  Polyak-Lojasiewicz (PL) inequality -- $\frac{1}{2} ||\nabla f(x)||_2^2 \geq \alpha (f(x) - f(x^*))$ -- to complete the proof\footnote{The PL condition is weaker then strong convexity, but $\alpha$-strong convexity implies the $\alpha$-PL inequality by a simple argument}. Interestingly, unlike the weakly convex case, we find it necessary to use the $-||\nabla f(X(t))||_2^2||$ to control the positive term $\alpha(f(X(t)) - f(x^*)$.
+
+Applying, the $\alpha$-PL inequality gives that:
+
+\begin{align*}
+    & \dot{E}(X(t), t) \leq -||\nabla f(X(t))||_2^2 - (f(X(t)) - f(x^*)) + \alpha (f(X(t)) - f(x^*)) -\alpha E(X(t), t) \\
+    & \leq -2 \alpha (f(X(t)-f(x^*)) - (f(X(t)-f(x^*)) + \alpha (f(X(t)-f(x^*)) - \alpha E(X(t), t)) = \\
+    & -(\alpha+1) (f(X(t)-f(x^*)) - \alpha E(X(t), t) \leq -\alpha E(X(t), t)
+\end{align*}
+yielding the desired conclusion.
+
+
+Now, using that $||X(t)-x^*||_2^2$ is non-negative, and that is $\mathcal{E}$ is non-increasing function (since $\dot{\mathcal{E}} \leq 0$) we immediately obtain that:
+\begin{align*}
+    & f(X(t)) - f(x^*) = e^{-\alpha t} \mathcal{E}(X(t), t) - \frac{1}{2} ||X(t) - x^*||_2^2 \leq e^{-\alpha t} \mathcal{E}(X(t), t) \leq e^{-\alpha t} \mathcal{E}(X(0), 0) = \\
+    & e^{-\alpha t} (f(X(0))-f(x^*)+\frac{1}{2}(||X(0)-x^*||_2^2) \underbrace{\leq}_{\beta-\textit{smooth}} e^{-\alpha t} \left( \frac{\beta+1}{2} ||X(0) - x^*||_2^2 \right) 
+\end{align*}
+which shows that $f(X(t)) \to f(x^*)$ at a geometric rate matching the convergence rate of gradient descent for strongly convex functions.
 
 \subsection{Informal Derivation of the Nesterov ODE}
 As in the case of gradient descent we will assume the function is $L$-smooth for some $L > 0$. Recalling the discrete-time Nesterov updates:
@@ -56,7 +94,7 @@ adding the $k+1$st update of $x_k$ as $x_{k+1} = y_k - s \nabla f(y_k)$ and the 
 \end{align}
 In order to derive the continuous-time limit of this set of equations, it is tempting to rescale this equation by $s$ and take $s \to 0$. However, this procedure will produce a degenerate limit as will become more apparent in the later derivation. As shown in \cite{su2014differential}, it is necessary to consider the \textit{ansatz} $x_k \approx X(k \sqrt{s})$ for some smooth curve $X(t)$, where the discrete/continuous time scaling takes the form $t = k \sqrt{s}$. That is we must rescale \eqref{diff1} by $\sqrt{s}$ to obtain:
 \begin{align}
-    (x_{k+1} - x_{k})/\sqrt{s} = \left( \frac{k-1}{k+2}(x_{k}-x_{k-1}) \right)/\sqrt{s} - \sqrt{s} \nabla f(y_k) \label{diff2}
+    (x_{k+1} - x_{k})/\sqrt{s} = \left(\frac{k-1}{k+2}(x_{k}-x_{k-1}) \right)/\sqrt{s} - \sqrt{s} \nabla f(y_k) \label{diff2}
 \end{align}
 and take $s \to 0$ to obtain the correct limit. With this time-scaling we will have $X(t) \approx x_{t/\sqrt{s}} = x_k$ and $X(t+ \sqrt{s}) \approx x_{(t+\sqrt{s})/\sqrt{s}} = x_{k+1}$. With this ansatz we can appeal to Taylor's theorem to approximate:
 \begin{align*}
@@ -137,14 +175,78 @@ where the last inequality follows from the convexity of $f$ which gives: $-\lang
 Present numerical examples/counterexamples
  
 \section{``Constant" Nesterov Acceleration}
-In the original work of Nesterov \cite{DBLP:journals/ftml/Bubeck15, nesterov2004introductory} two "acceleration" methods are presented in discrete-time. The "time-varying" case for $L$-smooth functions -- \eqref{nesterov} which ``accelerates" the $\mathcal{O}(1/k)$ rate of gradient descent to an optimal $\mathcal{O}(1/k^2)$ rate. However, Nesterov also presented an optimal algorithm for $\alpha$-strongly convex, $L$-smooth functions achieving an optimal geometric convergence rate $\mathcal{O} \left (\exp(-\frac{k}{\sqrt{\kappa}}) \right)$ compared to the $\mathcal{O} \left (\exp(-\frac{k}{\kappa}) \right)$ of gradient descent\footnote{Here $\kappa$ is the condition number of the function defined as $\kappa = \sqrt{L/\alpha}$.}:
+In the original work of Nesterov \cite{DBLP:journals/ftml/Bubeck15, nesterov2004introductory} two ``acceleration" methods are presented in discrete-time. The ``time-varying" case for $\beta$-smooth functions -- \eqref{nesterov} which ``accelerates" the $\mathcal{O}(1/k)$ rate of gradient descent to an optimal $\mathcal{O}(1/k^2)$ rate. Nesterov also presented an optimal algorithm for $\alpha$-strongly convex, $\beta$-smooth functions achieving an optimal geometric convergence rate $\mathcal{O} \left (\exp(-\frac{k}{\sqrt{\kappa}}) \right)$ compared to the $\mathcal{O} \left (\exp(-\frac{k}{\kappa}) \right)$ of gradient descent\footnote{Here $\kappa$ is the condition number of the function defined as $\kappa = \sqrt{\beta/\alpha}$.}:
 \begin{align}
-    & x_{k} = y_{k-1} - s \nabla f(y_{k-1}) \label{eq:constantnesterov1} \\
+    & x_{k} = y_{k-1} - \underbrace{\frac{1}{\beta}}_{s} \nabla f(y_{k-1}) \label{eq:constantnesterov1} \\
     & y_{k} = x_{k} + \left( \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} \right) \left( x_{k} - x_{k-1} \right)  \label{eq:constantnesterov2}
 \end{align}
- The original work of \cite{su2014differential} does not derive a continuous-time limit of this "constant" Nesterov scheme. Perhaps surprisingly, \cite{su2014differential} notes \textit{it is not possible} for a continuous-time ODE to generically achieve a non-polynomial (i.e. exponential) convergence rate -- making the continuous-time study of \eqref{eq:constantnesterov1} less interesting. However, due to the fact the momentum term is not time-varying the dynamical system specified by \eqref{eq:constantnesterov1}  (and its underlying ODE) should actually be simpler then the time-varying formulation. 
+ The original work of \cite{su2014differential} does not derive a continuous-time limit of this Nesterov scheme with ``fixed" momentum coefficient. We provide such a derivation here -- in particular showing the continuous-time limit maps onto the dynamics "critically" damped harmonic oscillator. This connection reveals the choice of momentum coefficient is far from arbitrary. In particular, if $f$ is quadratic, it is a well-known result from classical mechanics, that "critical" damping \footnote{which is achieved for a unique choice of momentum coefficient} leads to the fastest relaxation of the continuous-time dynamical system.
  
- Although, this case is simpler (and less interesting) then the time-varying to our knowledge, the continuous-time limit of \eqref{eq:constantnesterov1} has not been analyzed, so we derive the underlying ODE here. 
+ \begin{comment}
+ Perhaps surprisingly, \cite{su2014differential} notes \textit{it is not possible} for a continuous-time ODE to generically achieve a non-polynomial (i.e. exponential) convergence rate -- making the continuous-time study of \eqref{eq:constantnesterov1} less interesting. 
+ \end{comment}
+ 
+ In order to obtain the desired it is crucial to note that in \eqref{eq:constantnesterov2} we have that $s = \frac{1}{\beta}$ and $\kappa = \frac{\beta}{\alpha} = \frac{1}{\alpha s}$ -- so $\kappa$ is implicitly dependent on $s$ since $s$ is coupled to the smoothness of the function $f$ \footnote{For a fixed function $f$ that is $\beta$ smooth, it is somewhat odd to evaluate the limit $s \to 0 implies \beta \to \infty$. However, this is scaling is crucial to achieve the desired limit -- further it is still consistent since if $\beta_2 > \beta_1$ then $\beta_1$--smoothness implies $\beta_2$--smoothness.}
+ 
+  We first add the $k+1$st term of \eqref{eq:constantnesterov1} -- $x_{k+1} = y_k - s \nabla f(y_k)$ to the $k$th update of \eqref{eq:constantnesterov2} -- $y_k = x_k + \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} (x_k - x_{k-1})$ to obtain:
+ \begin{align*}
+     x_{k+1} = x_{k} + \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}(x_{k}-x_{k-1}) - s \nabla f(y_k)
+ \end{align*}
+ In the original $\eqref{eq:constantnesterov2}$ we consider the $s \to 0$ limit in the case where $\kappa(s)$ is coupled to the step-size (matching Nesterov's ``accelerated" scheme), and the case where $\kappa$ is independent of $s$ which is subtly different but may be of independent interest.
+ 
+ \subsection{$\kappa$ scales with $s$}
+ 
+ In order to derive the continuous-time limit of this set of equations, we rescale this equation by $\sqrt{s}$ and take $s \to 0$ as in the derivation of \eqref{ode}. In particular we consider the \textit{ansatz} $x_k \approx X(k \sqrt{s})$ for some smooth curve $X(t)$, where the discrete/continuous time scaling takes the form $t = k \sqrt{s}$.
+ \begin{align*}
+    \frac{x_{k+1}-x_k}{\sqrt{s}} = \frac{\sqrt{\kappa(s)}-1}{\sqrt{\kappa(s)}+1} \left( \frac{x_{k}-x_{k-1}}{\sqrt{s}} \right) - \sqrt{s} \nabla f(y_k) \implies \\
+    \frac{(x_{k+1}-x_k)-(x_{k}-x_{k-1})}{\sqrt{s}} = (\frac{\sqrt{\kappa(s)}-1}{\sqrt{\kappa(s)}+1}-1) \left( \frac{x_{k}-x_{k-1}}{\sqrt{s}} \right) - \sqrt{s} \nabla f(y_k)
+ \end{align*}
+ 
+ We will approximate $x_{k+1} \approx X(t+\sqrt{s})$, $x_k \approx X(t)$, $x_{k-1} \approx X(t-\sqrt{s})$.
+ Thus we have that:
+ \begin{align*}
+     & \frac{x_{k+1} - x_k}{\sqrt{s}} = \dot{X}(t) + \frac{1}{2} \sqrt{s} \ddot{X} o(\sqrt{s}) \\
+     & \frac{x_k - x_{k-1}}{\sqrt{s}} = \dot{X}(t) + \frac{1}{2} \sqrt{s} \ddot{X} o(\sqrt{s}) \\
+     & \nabla f(y_k) = \nabla f(X(t)) + o(1) \\
+     & \frac{\sqrt{\kappa(s)}-1}{\sqrt{\kappa(s)}+1}-1 = -\frac{2}{\sqrt{\kappa}+1} = \frac{2}{\frac{1}{\sqrt{\alpha s}}+1} = \frac{2 \sqrt{\alpha s}}{1+\sqrt{\alpha s}} = 2 \sqrt{\alpha} \sqrt{s} (1+o(\sqrt{s}))
+ \end{align*}
+ which gives:
+ \begin{align*}
+     \sqrt{s} \ddot{X} + o(s) = (2 \sqrt{alpha} \sqrt{s} + o(s))(\sqrt{s} \dot{X} + o(1)) - \sqrt{s} \nabla f(X(t))
+ \end{align*}
+ Matching terms at lowest-order yields the desired ODE as:
+ \begin{align}
+     \ddot{X}(t) + 2 \sqrt{\alpha} \dot{X} + \nabla f(X(t)) = 0 \label{constantnesterovode}
+ \end{align}
+Assuming the $f(X)$ has Lipschitz gradients the (local) existence and uniqueness of solutions to this ODE follows immediately from the Cauchy-Lipschitz theorem \cite{teschl2012ordinary}.
+
+We find, studying this ODE in the case of quadratic $f = \alpha x^2$ is particularly fruitful since this ODE is a linear differential equation and maps exactly onto the physics of a ``damped" harmonic oscillator.
+
+\subsubsection{Lyapunov Functional (Strongly Convex)}
+
+We can construct the Lyapunov functional :
+\begin{align*}
+    \mathcal{E}(X(t), t) = e^{\alpha t}\left ( f(X(t)) - f(x^*) + \frac{\alpha}{2}||x^*-\frac{1}{\alpha} \dot{X} + X||_2^2
+\end{align*}
+
+Direct computation shows that we have:
+\begin{align*}
+    & \dot{\mathcal{E}}= \frac{\sqrt{\kappa}+1}{2}(f(X(t)) - f(x^*)) + \frac{\sqrt{\kappa}+1}{2} t \langle \nabla f(X(t)), \dot{X}(t) \rangle + \langle \dot{X}(t), X(t)-x^* \rangle = \\
+    & \frac{\sqrt{\kappa}+1}{2} \underbrace{f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle}_{\leq 0} \underbrace{- t (\frac{\sqrt{\kappa}+1}{2})^2 || \nabla f(X(t))||_2^2}_{\leq 0} \implies \\
+    & \dot{\mathcal{E}} \leq 0
+\end{align*}
+where by convexity we have that $f(X(t)) - f(x^*) - \langle \nabla f(X(t)), X(t) - x^* \rangle \leq 0$ and $ - t ||f(X(t))||_2^2 \leq 0$ since $t>0$. Now, using that $||X(t)-x^*||_2^2$ is non-negative, and that is $\mathcal{E}$ is non-increasing function (since $\dot{\mathcal{E}} \leq 0$) we immediately obtain that:
+\begin{align*}
+    & f(X(t)) - f(x^*) = \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(t), t)}{t} - \frac{1}{(\sqrt{\kappa}+1)t} ||X(t) - x^*||_2^2 \leq \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(t), t)}{t} \leq \frac{2}{\sqrt{\kappa}+1} \frac{\mathcal{E}(X(0), 0)}{t} = \\ & \frac{2}{\sqrt{\kappa}+1} \frac{||X(0)-x^*||_2^2}{2t}
+\end{align*}
+
+Since $\frac{2}{\sqrt{\kappa}+1} < 1$ this bound on the error is tighter than in the case of gradient descent.
+
+ 
+ 
+ 
+ \subsection{$\kappa$ does not scale with $s$}
+
  
  We first add the $k+1$st term of \eqref{eq:constantnesterov1} -- $x_{k+1} = y_k - s \nabla f(y_k)$ to the $k$th update of \eqref{eq:constantnesterov2} -- $y_k = x_k + \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1} (x_k - x_{k-1})$ to obtain:
  \begin{align*}
