@@ -44,14 +44,14 @@ def plot_1D_traj(x0, titles=None, show=False, save=False, path=None):
     fig = plt.figure(1, figsize=(7,5))
     ax = fig.add_subplot(111)
 
-    plt.plot(t, over, linestyle="dashed", linewidth = 4.0, color="red")
-    plt.plot(t, critical, linestyle="dashdot", linewidth = 4.0, color="blue")
+    plt.plot(t, over, linestyle="dashed", linewidth = 4.0, color="blue")
+    plt.plot(t, critical, linestyle="dashdot", linewidth = 4.0, color="red")
     plt.plot(t, under, linestyle="dotted", linewidth = 4.0, color="green")
     plt.plot(t, zero, linestyle="solid", linewidth = 2.0, color="black")
     plt.xlabel("$t$", fontsize=24)
     plt.ylabel("$X(t)$", fontsize=24)
 
-    ax.annotate(r' Nesterov Momentum Coefficient: ' + r'$ \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}$', xy=(3, .5), xytext=(3, -0.4),
+    ax.annotate(r' Nesterov Momentum Coefficient: ' + r'$ \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}$', size='large', xy=(3, .5), xytext=(2, -0.4),
             arrowprops=dict(facecolor='black', shrink=0.1),
             )
     legend(titles, loc='upper right', fontsize='xx-large')
