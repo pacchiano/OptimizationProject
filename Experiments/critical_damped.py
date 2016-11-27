@@ -2,8 +2,12 @@ import numpy as np
 import math
 from math import exp, sqrt, pow
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.pyplot import figure, show, legend, xlabel, ylabel, errorbar, xlim, ylim, savefig, fill, fill_between
+from mpl_toolkits.axes_grid.axislines import SubplotZero
 
+matplotlib.rc('text', usetex=True)
+matplotlib.rcParams['text.latex.preamble']=[r"\usepackage{amsmath}"]
 # We specify initial conditions as x(0) = x_0 and \dot{x}_0 = 0.
 
 def overD(t, x0=5, z=2):
@@ -37,14 +41,20 @@ def plot_1D_traj(x0, titles=None, show=False, save=False, path=None):
     under = underD(t, x0=x0, z=0.3)
     zero = 0*t
 
-    fig = plt.figure(figsize=(5,5))
-    plt.plot(t, over, linestyle="solid", linewidth = 1.0, color="red")
-    plt.plot(t, critical, linestyle="solid", linewidth = 1.0, color="blue")
-    plt.plot(t, under, linestyle="solid", linewidth = 1.0, color="green")
-    plt.plot(t, zero, linestyle="dashed", linewidth = 2.0, color="black")
-    plt.xlabel("$t$", fontsize=16)
-    plt.ylabel("$X(t)$", fontsize=16)
-    legend(titles, loc='lower right')
+    fig = plt.figure(1, figsize=(7,5))
+    ax = fig.add_subplot(111)
+
+    plt.plot(t, over, linestyle="dashed", linewidth = 4.0, color="red")
+    plt.plot(t, critical, linestyle="dashdot", linewidth = 4.0, color="blue")
+    plt.plot(t, under, linestyle="dotted", linewidth = 4.0, color="green")
+    plt.plot(t, zero, linestyle="solid", linewidth = 2.0, color="black")
+    plt.xlabel("$t$", fontsize=24)
+    plt.ylabel("$X(t)$", fontsize=24)
+
+    ax.annotate(r' Nesterov Momentum Coefficient: ' + r'$ \frac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}$', xy=(3, .5), xytext=(3, -0.4),
+            arrowprops=dict(facecolor='black', shrink=0.1),
+            )
+    legend(titles, loc='upper right', fontsize='xx-large')
     if save:
         plt.savefig(path, format="eps", bbox_inches='tight')
     if show:
@@ -53,7 +63,7 @@ def plot_1D_traj(x0, titles=None, show=False, save=False, path=None):
 
 def main():
     titles = ["over", "critical", "under"]
-    plot_1D_traj(x0=3, titles=titles, show=True, save=False, path=None)
+    plot_1D_traj(x0=3, titles=titles, show=True, save=True, path="./critical_damp_Nesterov.eps")
 
 if __name__=="__main__":
     main()
