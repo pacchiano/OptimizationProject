@@ -251,13 +251,6 @@ y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
 \end{frame}
 
 
-
-
-
-
-
-
-
 \begin{frame}
 \frametitle{An ODE for Gradient Descent \cite{su2014differential}}
 \begin{block}{Limit of Gradient Descent}
@@ -341,26 +334,55 @@ $e^{\textcolor{red}{\sqrt{\alpha}} t} (f(X(t)) - f(x^*)) + \frac{\alpha}{2} ||X+
 \frametitle{An ODE for Nesterov Acceleration (II) Us!}
 \begin{block}{$f(X) = \frac{\alpha}{2} X^2 \equiv$ Damped Harmonic Oscillator!}
 \begin{center}
-
+\vspace{-,25cm}
 \begin{align*}
-   \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \overbrace{\alpha X}^{\nabla f(X)} = 0 \implies 
+   \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \alpha X = 0 \implies 
 \end{align*}
+\vspace{-1cm}
 \begin{align*}
    X(t) = \begin{cases}
    & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \text{ when } \zeta < 1 \\
-   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov Coefficient } \\
+   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov \ Coefficient } \\
    & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t})   \text{ when } \zeta > 1
    \end{cases}
 \end{align*}
 \end{center}
 \end{block}
 
+\begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping }
+\begin{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{An ODE for Nesterov Acceleration (II) Us!}
+\begin{block}{$f(X) = \frac{\alpha}{2} X^2 \equiv$ Damped Harmonic Oscillator!}
+\begin{center}
+\vspace{-,25cm}
+\begin{align*}
+   \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \alpha X = 0 \implies 
+\end{align*}
+\vspace{-1cm}
+\begin{align*}
+   X(t) = \begin{cases}
+   & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \text{ when } \zeta < 1 \\
+   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov \ Coefficient } \\
+   & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t})   \text{ when } \zeta > 1
+   \end{cases}
+\end{align*}
+\end{center}
+\end{block}
 
 \begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping }
+\begin{figure}
+\includegraphics[width=0.4\linewidth]{Experiments/critical_damp_Nesterov.eps}
+\caption{}
+\end{figure}
 
 \end{block}
 
 \end{frame}
+
 
 
 \subsection{Accelerated Mirror Descent}
