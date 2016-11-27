@@ -82,7 +82,14 @@
 \usepackage{amsmath}
 \usepackage{algpseudocode}
 \usepackage{mathtools}
+\usepackage{bibentry}
 
+
+%\usepackage[usenames, dvipsnames]{color}
+
+
+\newcommand\Fontvi{\fontsize{8}{7.2}\selectfont}
+\newcommand\fontbig{\fontsize{15}{7.2}\selectfont}
 
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -117,36 +124,168 @@ University of California, Berkeley }
 %------------------------------------------------
 \section{Background}
 
-\subsection{Nesterov's Acceleration}
-Aldo stuff
+
+
 
 
 \begin{frame}
-\frametitle{An ODE for Gradient Descent \citep{su2014differential}}
+\frametitle{ Gradient Descent }
+\begin{block}{Gradient Descent}
+First-order method to minimize $f:\mathbb{R}^n \rightarrow \mathbb{R}$.
+\begin{equation}
+    x_{t+1} = x_t - s \nabla f(x_t)
+\end{equation}
+\end{block}
+
+\begin{center}
+\includegraphics[width=2in]{SourceFiles/plots/Gradient_descent.eps}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\frametitle{ Smoothness and Strong Convexity }
+
+\begin{block}{$\beta$-Smoothness}
+$f$ is $\beta$-smooth if:
+\begin{equation}
+f(y) \leq f(x) + \nabla f(x)^\top(y-x)+ \frac{\beta}{2} ||x - y||_2^2
+\end{equation}
+\end{block}
+
+\begin{block}{$\alpha$-Strong Convexity}
+$f$ is $\alpha$-strongly convex if:
+\begin{equation}
+f(y) \geq f(x) + \nabla f(x)^\top(y-x) + \frac{\alpha}{2} ||x - y||_2^2
+\end{equation}
+\end{block}
+
+\begin{block}{Condition number}
+The condition number of a $\beta$-Smooth and $\alpha-$Strongly Convex function equals $\kappa = \frac{\beta}{\alpha}$
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Gradient Descent convergence rates}
+
+
+\fontbig
+
+\begin{center}
+ \begin{tabular}{||c c ||} 
+ \hline
+ Function Class  & GD convergence rate \\ [0.5ex] 
+ \hline\hline
+ $\beta$-Smooth  & $\frac{1 }{t}$  \\ [1ex]
+ \hline
+ $\beta$-Smooth, $\alpha-$Strongly Convex   & $\exp\left(-\frac{t}{\kappa}\right)$  \\[1ex]
+ \hline
+\end{tabular}
+
+\end{center}
+
+\begin{block}{Can we do better?}
+\onslide<2->Yes!
+\end{block}
+
+\end{frame}
+
+
+
+\begin{frame}
+
+\frametitle{Nesterov Accelerated Gradient}
+
+
+\begin{block}{Nesterov Accelerated Gradient (I)}
+Nesterov proposed different acceleration schemes that are applicable for different types of function classes. 
+\begin{align}
+    x_k = y_k - s \nabla f(y_{k-1}) \\
+    y_k = x_k + \frac{k-1}{k+2}(x_k - x_{k-1})
+\end{align}
+\end{block}
+
+\begin{block}{Nesterov Accelerated (II)}
+
+Applicable when $f$ is $\beta$-smooth and $\alpha-$Strongly convex functions
+\begin{align}
+x_k = y_{k-1} - \frac{1}{\beta} \nabla f(y_{k-1})\\
+y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
+\end{align}
+
+\end{block}
+
+\Fontvi
+*We can do this also for noneuclidean geometries via Mirror descent \cite{DBLP:journals/ftml/Bubeck15}.  
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Nesterov Gradient Descent convergence rates}
+\fontbig
+\begin{center}
+
+
+ \begin{tabular}{||c c c c ||} 
+ \hline
+ Function Class   & GD  &  Nesterov  \onslide<2-> {& Lower bound }\\ [0.5ex] 
+ \hline\hline
+ $\beta$-S & $\frac{1}{t}$ & \textcolor{blue}{$\frac{1}{t^2}$} & \onslide<2->{ \textcolor{blue}{$\frac{1}{t^2}$} } \\ [1ex]
+ \hline
+ $\beta$-S, $\alpha-$SC  &  $\exp\left(-\frac{t}{\kappa}\right)$ & \textcolor{red}{$\exp\left(-\frac{t}{\sqrt{\kappa}}  \right)$} & \onslide<2-> {\textcolor{red}{ $\exp\left(-\frac{t}{\sqrt{\kappa}}  \right)$} }\\ [1ex]
+ \hline
+\end{tabular}
+
+
+
+\end{center}
+
+
+
+\begin{block}{Can we do better?}
+\onslide<2-> {Not with a first order method \cite{DBLP:journals/ftml/Bubeck15}, \cite{nesterov2004introductory}.}
+\end{block}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{An ODE for Gradient Descent \cite{su2014differential}}
 \begin{block}{Limit of Gradient Descent}
 \begin{center}
 $x_k \approx X(\overbrace{k s}^{t})$ for the curve $X(t)$: \\
 \begin{align*}
 \begin{rcases*}
     x_k &= x_{k-1} - s \nabla f(x_{k-1}) \\
-\end{rcases*} \overset{s \to 0}{\longrightarrow} \dot{X} + \underbrace{\nabla f(X)}_{``force"} = 0
+\end{rcases*} \overset{s \to 0}{\longrightarrow} \dot{X} = - \underbrace{\nabla f(X)}_{``force"}
 \end{align*}
 \end{center}
 \end{block}
 
-\begin{block}{Lyapunov Functional (Weakly Convex) -- \citep{su2014differential}}
-$t (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2 \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(\frac{1}{t})$
+\begin{block}{Lyapunov Functional (Weakly Convex) -- \cite{su2014differential}}
+$\textcolor{red}{t} (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2 \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(\frac{1}{\textcolor{red}{t}})$
 \end{block}
 
 \begin{block}{Lyapunov Functional (Strongly Convex) -- Us!}
-$e^{-\alpha t} (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2) \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(e^{-\alpha t})$
+$e^{- \textcolor{red}{\alpha} t} (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2) \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(e^{-\textcolor{red}{\alpha} t})$
 \end{block}
+
+
 \end{frame}
 
 
 \begin{frame}
-\frametitle{An ODE for ``Annealed" Nesterov Acceleration \citep{su2014differential}}
-\begin{block}{Limit of ``Accelerated" Gradient Descent (Weakly Convex)}
+\frametitle{An ODE for Nesterov Acceleration (I) \cite{su2014differential}}
+\begin{block}{Limit of ``Accelerated" Gradient Descent (for Weakly Convex $f$)}
 \begin{center}
 $x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
 \begin{align*}
@@ -162,41 +301,66 @@ $x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
 \end{itemize}
 \end{block}
 
-\begin{block}{Lyapunov Functional (Weakly Convex) \citep{su2014differential}}
-$t^2 (f(X(t)) - f(x^*)) + 2||X+t \dot{X}/2 - x^*||_2^2 \implies f(X(t)) - f(x^*) \lesssim \mathcal{O}(1/t^2)$
+\begin{block}{Lyapunov Functional (Weakly Convex) \cite{su2014differential}}
+$\textcolor{red}{t^2} (f(X(t)) - f(x^*)) + 2||X+t \dot{X}/2 - x^*||_2^2 \implies f(X(t)) - f(x^*) \lesssim \mathcal{O}(1/\textcolor{red}{t^2})$
 \end{block}
 \end{frame}
 
 \begin{frame}
-\frametitle{An ODE for ``Annealed" Nesterov Acceleration \citep{su2014differential}}
-Minimizing $f(x_1, x_2) = 0.02 x_1^2 + 0.005 x_2^2$.
+\frametitle{An ODE for Nesterov Acceleration (I) \cite{su2014differential}}
+Minimizing $f(X_1, X_2) = 0.02 X_1^2 + 0.005 X_2^2$.
 \begin{figure}
 \includegraphics[width=0.6\linewidth]{Experiments/quadratic_traj_compare_annealed.eps}
 \caption{}
 \end{figure}
-
-\begin{block}{"Time" Parameter -- $t = k \sqrt{s}$}
-$x_k \approx X(k \sqrt{s})$
-for the continuous-time curve $X(t)$.
-\end{block}
 \end{frame}
-
 
 \begin{frame}
-\frametitle{An ODE for ``Constant" Nesterov Acceleration -- Us}
-Minimizing $f(x_1, x_2) = 0.02 x_1^2 + 0.005 x_2^2$.
-\begin{figure}
-\includegraphics[width=0.6\linewidth]{Experiments/quadratic_traj_compare_annealed.eps}
-\caption{}
-\end{figure}
-
-\begin{block}{"Time" Parameter -- $t = k \sqrt{s}$}
-$x_k \approx X(k \sqrt{s})$
-for the continuous-time curve $X(t)$.
+\frametitle{An ODE for Nesterov Acceleration (II) Us!}
+\begin{block}{Limit of ``Accelerated" Gradient Descent (for Strongly Convex $f$ )}
+\begin{center}
+$x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
+\begin{align*}
+\begin{rcases*}
+    x_k &= y_{k-1} - \overbrace{\frac{1}{\beta}}^{s} \nabla f(y_{k-1})\\
+    y_k &= x_k + \frac{\sqrt{\kappa(\beta)}-1}{\sqrt{\kappa(\beta)}+1} (x_k - x_{k-1}) 
+\end{rcases*} \overset{s \to 0}{\longrightarrow} \underbrace{\ddot{X}}_{``mass"} + \underbrace{2 \sqrt{\alpha} \dot{X}}_{``damping"} + \underbrace{\nabla f(X)}_{``force"} = 0
+\end{align*}
+\end{center}
 \end{block}
+
+
+\begin{block}{Lyapunov Functional (Strongly Convex) Us!}
+\small{
+$e^{\textcolor{red}{\sqrt{\alpha}} t} (f(X(t)) - f(x^*)) + \frac{\alpha}{2} ||X+\frac{1}{\sqrt{\alpha}} \dot{X} - x^*||_2^2 \implies f(X(t)) - f(x^*) \lesssim \mathcal{O}(e^{-\textcolor{red}{\sqrt{\alpha}} t})$}
+\end{block}
+
 \end{frame}
 
+\begin{frame}
+\frametitle{An ODE for Nesterov Acceleration (II) Us!}
+\begin{block}{$f(X) = \frac{\alpha}{2} X^2 \equiv$ Damped Harmonic Oscillator!}
+\begin{center}
 
+\begin{align*}
+   \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \overbrace{\alpha X}^{\nabla f(X)} = 0 \implies 
+\end{align*}
+\begin{align*}
+   X(t) = \begin{cases}
+   & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \text{ when } \zeta < 1 \\
+   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov Coefficient } \\
+   & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t})   \text{ when } \zeta > 1
+   \end{cases}
+\end{align*}
+\end{center}
+\end{block}
+
+
+\begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping }
+
+\end{block}
+
+\end{frame}
 
 
 \subsection{Accelerated Mirror Descent}
@@ -280,6 +444,14 @@ figure of quadractic plots
 Simplex constrained problems, list mirror map and divergence
 
 figure of log-sum-exp plots and diverging
+\end{frame}
+
+\begin{frame}[t, allowframebreaks]
+\frametitle{References}
+\footnotesize{
+\bibliographystyle{amsalpha}
+\bibliography{refs.bib}
+\cite{*}}
 \end{frame}
 
 

@@ -244,6 +244,13 @@ Since $\frac{2}{\sqrt{\kappa}+1} < 1$ this bound on the error is tighter than in
 
  
  
+\begin{align*}
+   X(t) = \begin{cases}
+   & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \sim e^{-\zeta \sqrt{\alpha} t}\text{ when } \zeta < 1 \\
+   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \sim t e^{-\zeta \sqrt{\alpha} t} \text{ when } \zeta = 1 \textcolor{red}{Nesterov ``Momentum" Coefficient}\\
+   & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t}) \sim e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}  \text{ when } \zeta > 1
+   \end{cases}
+\end{align*}
  
  \subsection{$\kappa$ does not scale with $s$}
 
