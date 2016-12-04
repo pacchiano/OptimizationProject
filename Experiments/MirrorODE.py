@@ -4,28 +4,29 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
 #### GLOBALS ####
+seed = 775 #246223
+np.random.seed(seed)
 I = 100# num_logsumexp_terms
-n = 2# dimension of x
-xstar = np.array([0.75,0.25])
-assert len(xstar) == n
-rv_a = np.random.normal(size=I*n)
-rv_b = np.random.normal(size=I)
-rv_q = np.random.normal(size=n*n)
-A = np.reshape(rv_a,(I,n)) # I x n matrix of iid normal rv 
-b = np.reshape(rv_b, (I,1))# I length matrix of iid normal rv
-Q = np.reshape(rv_q, (n,n)) # Random matrix
-Q = Q.T.dot(Q)
+d = 3# dimension of x
+xstar = np.random.randn(d,1)
+xstar = xstar/np.sum(xstar)
+
+t_step = 1.0/20.0/10.0
+
+
+assert len(xstar) == d
+D = np.random.randn(d,d)
+Q = np.dot(D,D.transpose())
+A = np.random.randn(100,d)
+b = np.random.randn(100,1)
 #################
 
 
-def amd_ode(z_0, nabla_f, t = 300.0, r = 3.0):
+def amd_ode(z_0, nabla_f, t = 2500.0, r = 3.0):
     z_0 = np.ravel(z_0)
     x_0 = np.ravel(grad_potential(z_0))
     dim = x_0.shape[0]
     s_0 = np.hstack((x_0,z_0))
-    print x_0.shape
-    print z_0.shape
-    print s_0.shape
     def dsdt(s, t):
         x = s[:dim]
         z = s[dim:]
@@ -37,10 +38,10 @@ def amd_ode(z_0, nabla_f, t = 300.0, r = 3.0):
 
         return ds
 
-    epsilon = 0.0001
+    epsilon = np.sqrt(1.0/20.0)/10.0 #s/10
+    num_pts = t*10
     t_min = epsilon
-    t_max = t_min + t
-    num_pts = 10000
+    t_max = t_min + num_pts * epsilon
     ts = np.linspace(t_min, t_max, num_pts)
     ss = odeint(dsdt, s_0, ts)
 
@@ -49,20 +50,20 @@ def amd_ode(z_0, nabla_f, t = 300.0, r = 3.0):
 
 
 # Takes in z_0 a
-def mirror_ode(z_0, nabla_f, t = 300.0):
+def mirror_ode(z_0, nabla_f, t = 2500.0):
     assert z_0.shape[1] == 1
     def dzdt(z,t):
         return -nabla_f(grad_potential(z))
 
     # Define time steps
-    t_min = 0.0001
-    t_max = t_min + t
-    num_pts = 10000
+    epsilon = np.sqrt(1.0/20.0)/10.0 #s/10
+    num_pts = t*10
+    t_min = epsilon
+    t_max = t_min + num_pts * epsilon
     ts = np.linspace(t_min, t_max, num_pts)
     zs = odeint(dzdt, np.ravel(z_0), ts)
 
     # Convert to xs
-    print zs.shape
     xs = np.apply_along_axis(grad_potential, 1 ,zs)
 
     return ts, xs, zs
@@ -94,31 +95,33 @@ def grad_potential(z):
     e = np.exp(z - np.max(z))  # prevent overflow
     return e / np.sum(e)
 
-def run_logsum_mirror_ode():
-    z_0 = np.ones((n,1)) # Dummy variable for now
-
+def run_logsum_mirror_ode(z_0, horizon=2500.0):
     # Run for a long time to numerically compute optimum
     ts, xs, zs  = amd_ode(z_0, gradf_logsumexp, t=100000)
-    x_max = xs[-1,:]
-
-    ts, xs, zs  = amd_ode(z_0, gradf_logsumexp)
+    x_star = xs[-1,:]
+    fmin = f_logsumexp(x_star)
+    ts, xs, zs  = amd_ode(z_0, gradf_logsumexp, t=horizon)
     fs = np.apply_along_axis(f_logsumexp, 1, xs)
-    plt.plot(ts, np.log(fs - f_logsumexp(x_max)), linestyle="solid", linewidth = 1.0, color="red")
+    plt.plot(ts, np.log(fs - fmin), linestyle="solid", linewidth = 1.0, color="red")
     plt.xlabel("$t$", fontsize=24)
     plt.ylabel("Log Error", fontsize=24)
     plt.title("Logsumexp Mirror Descent ODE", fontsize = 24)
     plt.show()
+    return ts, xs, zs, fs, x_star
 
 
-def run_quad_mirror_ode():
-    z_0 = np.ones((n,1)) # Dummy variable for now
-    ts, xs, zs  = amd_ode(z_0, gradf_quadratic)
+def run_quad_mirror_ode(z_0, horizon=2500.0):
+    ts, xs, zs  = amd_ode(z_0, gradf_quadratic, t=horizon)
     fs = np.apply_along_axis(f_quadratic, 1, xs)
-    plt.plot(ts, np.log(fs - f_quadratic(xstar)), linestyle="solid", linewidth = 1.0, color="red")
+    plt.plot(ts, np.log(fs), linestyle="solid", linewidth = 1.0, color="red")
     plt.xlabel("$t$", fontsize=24)
     plt.ylabel("Log Error", fontsize=24)
     plt.title("Quadratic Mirror Descent ODE", fontsize = 24)
     plt.show()
+    fmin = 0
+    return ts, xs, zs, fs, np.ravel(xstar)
 
-run_logsum_mirror_ode()
+#z0 = np.random.rand(d,1)
+#x0 = grad_potential(z0)
+#run_logsum_mirror_ode(z0)
 

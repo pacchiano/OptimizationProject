@@ -1,0 +1,10 @@
+README
+
+1. Experiments and plot creation
+
+-- Candes Plots
+
+-- Strongly convex setting
+
+-- Mirror Descent Plots: MirrorPlotting.py
+	This file relies on MirrorODE.py and a slightly modified version of the Accelerated Mirror Descent code library by Walid Krichene (https://github.com/walidk/AcceleratedMirrorDescent). The modifications are to the file AcceleratedMethods.py to include a non-provably converging (and potential diverging) method flag. The plotting code and interfacing used the test/SimplexQuadTest and amd/SimulationSimplex.py as a reference for writing the file MirrorPlotting.py
