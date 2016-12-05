@@ -1,33 +1,74 @@
 
 
-The dimension-free oracle bounds that have been discussed up until this point rely upon a well-behaved objective function $f$ and constraint set $\mathcal{X}$ in the $l_2$ norm; namely, the radius of the constraint set $R$ and Lipschitz constant of the objective function $L$ with respect to the $l_2$ norm must be independent of the ambient dimension $n$ in order to achieve a dimension-free oracle bound. In some settings, $f$ and $\mathcal{X}$ may be well-behaved with respect to an arbitrary norm $\|\cdot \|$, in which we wish to exploit the underlying structure to achieve fast convergence rates independent of the ambient dimension $n$. In this section, we provide an overview of the details of mirror descent, a method developed by \cite{blair1985problem}, which allows us to achieve a faster convergence rate for vector spaces endowed with an arbitrary norm. 
-
+The dimension-free oracle bounds that have been discussed up until this point rely upon a well-behaved objective function $f$ and constraint set $\mathcal{X}$ in the $l_2$ norm; namely, the radius of the constraint set $R$ and Lipschitz constant of the objective function $L$ with respect to the $l_2$ norm must be independent of the ambient dimension $n$ in order to achieve a dimension-free oracle bound. In some settings, $f$ and $\mathcal{X}$ may be well-behaved with respect to an arbitrary norm $\|\cdot \|$, in which we wish to exploit the underlying structure to achieve fast convergence rates. One possible example is minimizing the function $f$ over an $l_1$ ball. In this section, we provide an overview of the details of mirror descent, a method developed by \citep{blair1985problem}, which allows us to achieve a faster convergence rate for vector spaces endowed with an arbitrary norm. 
 
 \subsection{Dual space}
-connections with Fenchel, etc
-- Gradient lives dual space
-- In the case of Hilbert S
+Recall that standard projected gradient descent performs optimization over any Hilbert space. In order to extend our optimization methods to apply to arbitrary norms, we turn our focus to optimization procedures that work over any Banach space. Projected gradient descent does not apply to normed vector spaces which are not derived from an inner product since the gradients (which are linear functionals) are elements of the dual space, so $x - \eta \nabla f(x)$ cannot be used. Note that in the Hilbert space case due to the Riesz representation theorem, the Hilbert space and its dual are isometric, so we can perform gradient descent $x - \eta \nabla f(x)$.
+
+In order to exploit the underlying geometry of our optimization function, we replace the Euclidean geometry of projected gradient descent with a more pertinent geometry for our problem. Instead of making the gradient update directly, mirror descent maps the point to the dual space and performs the gradient update before mapping it back to the primal space.
+
+For our arbitrary norm $\|\cdot \|$ on $\mathbb{R}^n$, we wish to minimize $\mathcal{X} \subset \mathbb{R}^n$. Our dual space is endowed with the dual norm $\|g \|_* = \sup_{\|x\|\leq 1} g^Tx$.
 
 \subsection{Mirror map}
-- Properties of Mirror map
-- What this induces for the purposes of mirror descent
+In mirror descent, the gradient of the mirror map $\Phi: \mathcal{D} \rightarrow \mathbb{R}$ is used to map points in the primal space to the dual space, the latter of which is where the gradient update takes place. In order to use the mirror map in this manner, we impose some conditions on $\Phi$.
+\begin{itemize}
+\item $\Phi$ is strictly convex and differentiable
+\item $\nabla \Phi(\mathcal{D}) = \mathbb{R}^n$
+\item $\lim_{x \rightarrow \partial \mathcal{D}} \|\nabla \Phi(x)\| = \infty$
+\end{itemize}
+These conditions guarantee that the map is invertible as well as provide conditions for the existence and uniqueness of a projection which we will see in the next subsection.
 
 \subsection{Bregman divergences}
- - Bregman divergence definition
- - Can be interpreted as the difference between the function at x and the first-order taylor expansion around y for a given potential function
- - Generalization of squared Euclidean norm
- - Bregman is the law of cosines of FOC (?)
- - Duality
- - (Ashia paper) The Bregman Lagrangian is an approximation of the Hessian but the Hessian is difficult to discretize
+A natural generalization of the squared Euclidean norm is the Bregman divergence as it satisfies many similar properties. The Bregman divergence associated with $\Phi$ can be formally written as
+$$ D_{\Phi}(x,y) = \Phi(x) - \Phi(y) - \nabla \Phi(y)^T(x-y)$$
+This can be interpreted as the distance between the function at $x$ and the first-order Taylor expansion around $y$ for a given potential function $\Phi$. It is worth noting that the Bregman divergence is guaranteed to be non-negative when $\Phi$ is convex.
 
-Examples:
-- KL divergence
-- $L_P$ norm
-- Mutual Information/hamming distance etc
+The Bregman divergence includes many classical examples of distances such as Mahalanobis distances and the Kullback-Liebler divergence. Several other useful properties of the Bregman divergence include:
+\begin{itemize}
+    \item The Bregman projection onto a convex set $C \subset \mathbb{R}^n$ given by $y' = \arg\min_{x \in C} d_{\Phi}(x,y)$.
+    \item The generalized Pythagreon theorem for all $x \in C$ and $y \in \mathbb{R}^n$, we have
+    $$d_{\Phi}(x,y) \geq d_{\Phi}(x,y') + d_{\Phi}(y',y)$$
+    where $y'$ is the Bregman projection of $y$ onto $C$.
+    \item Duality
+    $$d_{\Phi}(x,y) = d_{\Phi^*}(\nabla \Phi(x), \nabla \Phi(y))$$
+    where $\Phi^*$ is the convex conjugate of $\Phi$.
+\end{itemize}
+
 
 \subsection{Mirror descent}
-- Mirror descent and convergence results
-- Examples of varying setups
-- Equivalent in different norms but might introduce an ambient dimension
-Adaboost connection to the entropy?
+The mirror descent algorithm can be described in two steps:
+\begin{enumerate}
+\item Perform the gradient update
+$$\nabla \Phi(y_{t+1}) = \nabla \Phi(x_t) - \eta g_t$$
+where $g_t \in \partial f(x_t)$
+\item Project back onto $\mathcal{X}$
+$$x_{t+1} \in \Pi_{\mathcal{X}}^{\Phi}(y_{t+1})$$
+\end{enumerate}
+
+We can rewrite the mirror descent algorithm from the proximal viewpoint
+\begin{equation*}
+x_{t+1} = \arg\min_{x \in \mathcal{X}\cap \mathcal{D}} \eta g_t^Tx + D_{\Phi}(x,x_t)
+\end{equation*}
+From this viewpoint, we choose a local linear approximation of $x_t$ in the direction of the subgradient while penalizing points far away from the previous point measured in terms of the Bregman divergence of the mirror map.
+
+\begin{theorem}
+Let $\Phi$ be a mirror map $\rho$-strongly convex on $\mathcal{X} \cap \mathcal{D}$ with respect to $\|\cdot\|$. Let $R^2 = \sup_{x \in \mathcal{X}\cap \mathcal{D}} \Phi(x) - \Phi(x_1)$, and $f$ be convex, $L$-Lipschitz with respect to $\|\cdot\|$. Then mirror descent with $\eta = \frac{R}{L}\sqrt{\frac{2\rho}{t}}$ satisfies
+\begin{equation}
+f\Big(\frac{1}{t}\sum_{s=1}^t x_s\Big) - f(x^*) \leq RL\sqrt{\frac{2}{\rho t}}
+\end{equation}
+\end{theorem}
+This rate verifies the properties of mirror descent, which we expanded upon earlier in the section.
+
+To gain intuition, we expand upon some standard setups in which mirror descent is commonly used.
+\begin{itemize}
+\item $l_2$-ball - Choosing the mirror map as the squared Euclidean norm on $\mathcal{D} = \mathbb{R}^n$
+$$\Phi(x) = \frac{1}{2}\|x\|_2^2$$
+induces a Bregman divergence of $D_{\Phi}(x) = \frac{1}{2}\|x - y\|_2^2$ which coincides with standard projected subgradient descent.
+\item $l_1$-ball - Another commonly used mirror map is negative entropy
+$$\Phi(x) = \sum_{i=1}^n x(i) \log x(i)$$
+where $\mathcal{D} = \mathbb{R}^n_{++}$. The associated Bregman divergence is the KL-divergence $D_{\Phi}(x,y) = \sum_{i=1}^n x(i) \log \frac{x(i)}{y(i)}$. Projecting onto the simplex can be achieved by simply renormalizing $y \rightarrow y/\|y\|_1$. In this case, when the subgradients of $f$ are bounded in the $l_{\infty}-norm$, the convergence rate of mirror descent is $\sqrt{\frac{\log n}{t}}$ while the convergence rate of subgradient descent is $\sqrt{\frac{n}{t}}$.
+\end{itemize}
+
+% - Equivalent in different norms but might introduce an ambient dimension
+% Adaboost connection to the entropy?
 

@@ -1,52 +1,71 @@
-The notions of a dual space and mirror descent can be combined with the insights from the Nesterov continuous-time ODE in an elegant way to provide a derivation of mirror descent and accelerated mirror descent. We can ultimately present an ODE showing that a broad family of accelerated methods can be obtained from discretization of a simple ODE (superset for Candes paper).
+In the following section, we combine the insights of the Nesterov continuous-time ODE in \cite{su2014differential} with the dual space framework of mirror descent to provide an elegant derivation of mirror descent and accelerated mirror descent, following the work of \cite{krichene2015accelerated}. The result is a general family of ODEs that can be discretized to obtain accelerated descent methods, demonstrating the broad application and utility of the contiuous-time viewpoint. However, we see that the proof techniques, particularly in the discretization process, become complex as we move away from the Euclidean setting, showing the limitations of the continuous-time viewpoint and highlighting the area with the most significant future work to be done. 
 
-\subsection{Lyapunov Argument}
-Recap the importance of this alrgoithm as used above and recap connectino to the standard gradient descent.
+\subsection{Mirror Descent in Continuous Time}
 
-The convergence rates for ODEs $X(t)$ and discrete time algorithms $X_k$ are analyzed by an argument involving a Lyapunov function $V(X)$ which must be nonnegative and decreasing wrt $t$. For example, in normal gradient descent we have $\dot X(t) = -\nabla f(X(t))$, $V(
-X) = \frac{1}{2}\|X(t)-x^*\|^2$
-\[\dot V(X(t)) = \langle  -\nabla f(X(t)), X(t) - x^*\rangle \leq -(f(X(t)) - f^*)\]
-\[ V(X(t)) - V(x_0) \leq tf^* - \int_0^t f(X(t))dt \leq tf^* - f\left(\int_0^t X(t)dt\right) \implies  f^* - f\left(\frac{1}{t}\int_0^t X(t)dt\right) \leq \frac{V(x_0)}{t} \]
-Thus the general method is to find a Lyapunov function, then integrate and rearrange to find a convergence rate.
+To view mirror descent from a continuous time perspective, we leverage the insights gained in contiuous time. This saves us from having to take the limit of the discrete-time mirror descent algorithm (ref 5.4), which is viewed in variational form and therefore would present more of a challenge. We begin by generalizing the Lyapunov, or energy, function (ref 3.2) by replacing the $\ell_2$ norm with a Bregman divergence on dual variables, essentially treating it as a generator for first order methods. Note that $\Phi^*$ represents the dual map to $\Phi$, where $(\nabla \Phi)^{-1} = \nabla \Phi^*$, so we expect that $X = \nabla \Phi ^* (Z)$
+\begin{align*}
+\mathcal{E}(X(t), Z(t), t) = t(f(X(t)) - f(x^*)) + D_{\Phi^*} (Z(t), z^*)
+\end{align*}
+The proposed function is clearly nonnegative, but the dynamics on the variables $X$ and $Z$ must be set carefully to ensure that $\mathcal{E}$ is decreasing along trajectories of the system, thus meeting the criteria for a Lyapunov function. We therefore examine the time derivative (TODO in previous section mention derivative)
+\begin{align*}
+\dot {\mathcal{E}} &= (f(X(t)) - f(x^*)) + t\langle \nabla f(X(t)), \dot X(t) \rangle +  \langle \nabla \Phi^* (Z(t)) -  \nabla \Phi^* (z^*), \dot{Z}(t) \rangle\\
+&= (f(X(t)) - f(x^*)) + t\langle \nabla f(X(t)), \frac{d}{dt}\nabla\Phi^*(Z(t)) \rangle + \langle X(t) -  x^*, \dot{Z}(t) \rangle\\
+&= (f(X(t)) - f(x^*)) + t\langle\nabla f(X(t)), \langle \nabla^2\Phi^*(Z(t)), \dot Z(t) \rangle \rangle + \langle -\nabla f(X(t)), X(t) -  x^* \rangle \\
+& \leq (f(X(t)) - f(x^*)) + t\langle\nabla f(X(t)), - \langle \nabla^2\Phi^*(Z(t)), \nabla f(X(t)) \rangle \rangle -(f(X(t)) - f(x^*))\\
+& =  -t\langle  \langle \nabla^2\Phi^*(Z(t)), \nabla f(X(t)) \rangle,\nabla f(X(t))  \rangle \leq 0
+\end{align*}
+The above is kind of messy and below is much more elegant, but slightly less consistent with the cases presented previously. 
+\begin{align*}
+\dot {\mathcal{E}} &= \langle \nabla \Phi^* (Z(t)) -  \nabla \Phi^* (z^*), \dot{Z}(t) \rangle\\
+&=\langle X(t) -  x^*, \dot{Z}(t) \rangle\\
+&= \langle -\nabla f(X(t)), X(t) -  x^* \rangle \leq -(f(X(t)) - f(x^*))
+\end{align*}
+where in the last line we constrain the dynamics such that $\dot Z(t) = -\nabla f(X(t))$ and then use the convexity of $f$. Therefore, the mirror descent ODE system is found to be
+\begin{align*}
+&X = \nabla \Phi^*(Z)\\
+&\dot Z = - \nabla f(X)\\
+& Z(0) = z_0,~X(0) = \nabla \Phi^*(z_0) := x_0
+\end{align*}
+By the construction of this Lyapunov function, we can easily show the $1/t$ convergence rate, as above (cite previous section on using Lyapunov for showing convergence rate).
 
-\subsubsection{Mirror Descent}
-extention of normal gradient descent to mirror descent 
-
-Consider the Lyapunov function as a generator for these first order methods -- choose $V$ and then design dynamics of $X$. Replace the $V(X)$ above with a function on the dual space for $Z$, $X(t) = \nabla\psi^*(Z(t))$, $\psi$ convex
-\[V(Z(t)) = D_{\psi^*} (Z(t), z^*)\]
-This is the Bregman divergence: 
-\[ D_{\psi^*}(z,y) = \psi^*(z) - \psi^*(y) - \langle \psi^*(y), z-y\rangle \]
-Can have properties such as \textit{l} strongly convex or $L$ smooth. We find that
-\[\dot V(Z(t)) = \langle  X(t) - x^*, \dot Z(t)\rangle\]
-So $\dot Z = -\nabla f(X)$ follows argument above, recovering mirror descent, defined (with consisdent starting point)
-\[X = \nabla\psi^*(Z), \quad \dot Z = -\nabla f(X)\]
-
-make the connection to the mirror descent as presented by Jeff above
+Finally, the connection between this continuous-time ODE and the mirror decsent algorithm is seen in discretizing with step size $s$. Let $t_k = sk$ and $x_k = X(t_k) = X(sk)$, then use the Euler method to say that $\dot Z = \frac{Z(t_s + s) - Z(t_s)}{s}$, and we arrive at
+\begin{align*}
+&x_k = \nabla \Phi^*(z_k),~z_{k+1} = z_k - s \nabla f(x_k)\\
+&\implies \nabla \Phi(x_{k+1}) = \nabla \Phi(x_k) - s \nabla f(x_k)
+\end{align*}
+which is precisely the form of mirror descent discussed in the previous section.
 
 \subsection{Accelerated Mirror Descent}
-We can view Candes paper as revolving around the Lyapunov function 
-\[\mathcal{E}(t) = \frac{t^2}{r} (f(X) - f^*) + \frac{r}{2} \|X+\frac{t}{r}\dot X - x^* \|^2\]
-we noow follow the steps above to generalize this ODE to a mirror descent setting.
+Again, leveraging the insights about continuous-time gradient descent, we are able to derive a continuous time accelerated mirror descent ODE. We begin with the Lyapunov function (ref in section 3), and again replace the Euclidean distance with a Bregman divergence on the dual variables. 
+\begin{align*} 
+\mathcal{E}(X(t),Z(t),t) = \frac{t^2}{r-1} (f(X(t)) - f^*) + (r-1) D_{\phi^*} (Z(t), z^*) \end{align*}
+This function is clearly nonnegative, and as above we take the time derivative and set the dynamic such that the function will decrease along trajectories of the system
+\begin{align*} 
+\dot {\mathcal{E}} &= \frac{2t}{r-1} (f(X(t)) - f^*) + \frac{t^2}{r-1} \langle \nabla f(X(t)), \dot X(t)\rangle + (r-1) \langle \nabla \Phi^* (Z(t)) -  \nabla \Phi^* (z^*), \dot{Z}(t) \rangle\\
+&\text{taking }\dot Z = -\frac{t}{r-1} \nabla f(X)\\
+\dot {\mathcal{E}} &= \frac{2t}{r-1} (f(X(t)) - f^*) + t \langle \nabla f(X(t)), \frac{t}{r-1} \dot X(t) - (\nabla \Phi^* (Z(t)) -  \nabla \Phi^* (z^*)) \rangle\\
+&\text{taking } \nabla \Phi^* (Z) = X + \frac{t}{r-1}\dot X\\
+\dot {\mathcal{E}} &= \frac{2t}{r-1} (f(X(t)) - f^*) + t \langle \nabla f(X(t)), x^* - X(t)   \rangle\\
+&\leq \frac{2t}{r-1} (f(X(t)) - f^*) + t ( f(X(t))- f(x^*))\\
+&= -t \frac{r-3}{r-1} (f(X(t)) - f^*)
+\end{align*} 
 
-\subsubsection{Derivation}
-We propose the function
-\[ V(X(t),Z(t),t) = \frac{t^2}{r} (f(X(t)) - f^*) + r D_{\phi^*} (Z(t) z^*) \]
-If we take the time derivative and chose dynamics $\dot Z = -\frac{t}{r} \nabla f(X)$, and also $\nabla \psi^*(Z) = X + \frac{t}{r} \dot X$ $\nabla \psi^*(z^*) = x^*$ (*** intuitively what can we say about $\psi^*$)
-\[ \frac{d}{dt} V(X(t),Z(t),t) \leq -t \frac{r-2}{r} (f(X) - f^*) \]
-Then $V$ is Lyapunov for $r\geq 2$. Proposed system, for $X(0) = x_0 = \nabla \psi^*(z_0), Z(0) = z_0$
-\[ \dot X = \frac{r}{t} (\nabla \psi^*(Z) - X),\quad \dot Z = -\frac{t}{r} \nabla f(X) \]
-
-\subsubsection{ODE solution sketch}
-The Cauchy-Lipshitze existance and uniqueness theorem does not apply because of the singularity at $t=0$, so consider a sequence of approximating ODEs instead, as in Candes paper. Basically, replace $t$ in the denominator with $\max (t,\delta)$ In this process, we assume that $\nabla f$ is $L_f$-Lipschitz. and $\psi^*$ is $L_{\psi^*}$ smooth or equivalently $\nabla \psi^*$ is $L_{\psi^*}$-Lipschitz.
-
-\subsubsection{Convergence rate}
-By construction of the Lyapunov function, easy to see that
-\[ \frac{t^2}{r} (f(X(t)) - f^*) \leq V(X(t),Z(t),t) \leq  V(x_0,z_0,0)  = rD_{\psi^*}(z_0,z^*) \]
+(rewrite this as a proposition or lemma)?
+Then for the chosen dynamics, $V$ is Lyapunov for $r\geq 3$. Ultimately, the proposed ODE system is
+\begin{align*}
+&\dot X = \frac{r-1}{t} (\nabla \Phi^*(Z) - X)\\
+&\dot Z = -\frac{t}{r-1} \nabla f(X)\\
+&Z(0) = z_0,~X(0) = \nabla \Phi^*(z_0) := x_0
+\end{align*}
+By the construction of this system of ODEs as a Lyapunov function, the $1/t^2$ convergence rate is easily proven, using the same logic as (cite previous part), as long as it is assumed that there exist unique solutions $X$ and $Z$. The existence and uniqueness of the solutions to this ODE is nontrivial due to the singularity at $t=0$, the Cauchy-Lipshitz theorem does not apply. The proof relies on construction a sequence that converges to the given function. Details are in the paper \cite{krichene2015accelerated}. Basically, replace $t$ in the denominator with $\max (t,\delta)$ In this process, we assume that $\nabla f$ is $L_f$-Lipschitz. and $\psi^*$ is $L_{\psi^*}$ smooth or equivalently $\nabla \psi^*$ is $L_{\psi^*}$-Lipschitz.
 
 \subsubsection{Continuous-time averaging interpretation}
 In integral form, we can write
 \[ X(t) = \frac{\int_0^t \tau^{r-1} \nabla\psi^*(Z(\tau)) d\tau}{\int_0^t \tau^{r-1}} \]
 So the dual variable $Z$ accumulates gradients with a $\frac{t}{r}$ rate, and primal $X$ is a weighted average of $\nabla\psi^*(Z)$, with weights determined by $t^{r-1}$. Here, it is clear that the primal trajectory remains in $\mathcal X$ because it is convex and $\nabla\psi^*$ maps into $\mathcal X$.
+
+\subsection{Strongly convex case -- new work}
+Attempt to write something about this. See if we can prove even a week bound that is vaguely exponential? TODO
 
 \subsection{Discretization}
 \subsubsection{Euler scheme}
@@ -86,9 +105,3 @@ The function $\psi$ include $\delta$ to satisfy the constraint, and $\psi^*$ can
 Quadratic functoin and log-sum-exp on the simplex problem as above. *** what are applications of the simplex constraint**. Plots show accelerated, non-accelerated, as well as two faster algorithms with restarting mechanisms. 
 
 Looks like there are cool videos in the supplementary material!
-
-
-
-
-
-
