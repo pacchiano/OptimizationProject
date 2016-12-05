@@ -77,6 +77,7 @@
 }
 
 \usepackage{graphicx} % Allows including images
+\usepackage{wrapfig} 
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
 \usepackage{algorithm}
 \usepackage{amsmath}
@@ -95,7 +96,7 @@
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
 
-\title[]{Continuous-time Perspectives on Accelerated Gradient Descent Methods} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title[]{Continuous-time Perspectives on Accelerated First-Order Methods} % The short title appears at the bottom of every slide, the full title is only on the title page
 \author[Chan, Dean, Pacchiano, Tripuraneni]{Jeffrey Chan, Sarah Dean, Aldo Pacchiano, Nilesh Tripuraneni} % Your name
 \institute[UCB] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {Department of EECS,
@@ -108,33 +109,30 @@ University of California, Berkeley }
 \titlepage % Print the title page as the first slide
 \end{frame}
 
-\begin{frame}
-\frametitle{Overview} % Table of contents slide, comment this block out to remove it
-\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
-\end{frame}
+
+%\begin{frame}
+%\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%\tableofcontents % Throughout your presentation, if you choose to use \section{} and \subsection{} commands, these will automatically be printed on this slide as an overview of your presentation
+%\end{frame}
 
 %----------------------------------------------------------------------------------------
 %	PRESENTATION SLIDES
 %----------------------------------------------------------------------------------------
 
 %------------------------------------------------
-\section{Introduction} % Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
+% Sections can be created in order to organize your presentation into discrete blocks, all sections and subsections are automatically printed in the table of contents as an overview of the talk
 %------------------------------------------------
 
 %------------------------------------------------
-\section{Background}
-
-
-
-
+\section{Introduction}
 
 \begin{frame}
 \frametitle{ Gradient Descent }
 \begin{block}{Gradient Descent}
 First-order method to minimize $f:\mathbb{R}^n \rightarrow \mathbb{R}$.
-\begin{equation}
-    x_{t+1} = x_t - s \nabla f(x_t)
-\end{equation}
+\begin{align*}
+    x_{k+1} = x_k - s \nabla f(x_k)
+\end{align*}
 \end{block}
 
 \begin{center}
@@ -147,27 +145,33 @@ First-order method to minimize $f:\mathbb{R}^n \rightarrow \mathbb{R}$.
 
 \begin{block}{$\beta$-Smoothness}
 $f$ is $\beta$-smooth if:
-\begin{equation}
+\begin{align*}
 f(y) \leq f(x) + \nabla f(x)^\top(y-x)+ \frac{\beta}{2} ||x - y||_2^2
-\end{equation}
+\end{align*}
 \end{block}
+
+
 
 \begin{block}{$\alpha$-Strong Convexity}
 $f$ is $\alpha$-strongly convex if:
-\begin{equation}
+\begin{align*}
 f(y) \geq f(x) + \nabla f(x)^\top(y-x) + \frac{\alpha}{2} ||x - y||_2^2
-\end{equation}
+\end{align*}
 \end{block}
 
 \begin{block}{Condition number}
-The condition number of a $\beta$-Smooth and $\alpha-$Strongly Convex function equals $\kappa = \frac{\beta}{\alpha}$
+Condition Number $\kappa = \frac{\beta}{\alpha}$ for a $\beta$-Smooth and $\alpha-$Strongly Convex function.
 \end{block}
 \end{frame}
 
-
 \begin{frame}
-\frametitle{Gradient Descent convergence rates}
+\frametitle{Gradient Descent Convergence Rates}
 
+\fontbig
+
+\begin{block}{Convergence Rate}
+$f(x_k) - f(x^*) \lesssim \mathcal{O}(\text{ rate })$ 
+\end{block}
 
 \fontbig
 
@@ -176,16 +180,18 @@ The condition number of a $\beta$-Smooth and $\alpha-$Strongly Convex function e
  \hline
  Function Class  & GD convergence rate \\ [0.5ex] 
  \hline\hline
- $\beta$-Smooth  & $\frac{1 }{t}$  \\ [1ex]
+ $\beta$-Smooth  & $\frac{1 }{k}$  \\ [1ex]
  \hline
- $\beta$-Smooth, $\alpha-$Strongly Convex   & $\exp\left(-\frac{t}{\kappa}\right)$  \\[1ex]
+ $\beta$-Smooth, $\alpha-$Strongly Convex   & $\exp\left(-\frac{k}{\kappa}\right)$  \\[1ex]
  \hline
 \end{tabular}
 
 \end{center}
 
+\fontbig
+
 \begin{block}{Can we do better?}
-\onslide<2->Yes!
+\onslide<2->Yes! -- ``Accelerate"
 \end{block}
 
 \end{frame}
@@ -194,24 +200,23 @@ The condition number of a $\beta$-Smooth and $\alpha-$Strongly Convex function e
 
 \begin{frame}
 
-\frametitle{Nesterov Accelerated Gradient}
+\frametitle{Nesterov's ``Accelerated" Gradient}
 
 
-\begin{block}{Nesterov Accelerated Gradient (I)}
-Nesterov proposed different acceleration schemes that are applicable for different types of function classes. 
-\begin{align}
-    x_k = y_k - s \nabla f(y_{k-1}) \\
-    y_k = x_k + \frac{k-1}{k+2}(x_k - x_{k-1})
-\end{align}
+\begin{block}{Nesterov's Accelerated Gradient (I)}
+For $f$ $\beta$-smooth functions:
+\begin{align*}
+    x_k =& y_k - s \nabla f(y_{k-1}) \\
+    y_k =& x_k + \frac{k-1}{k+2}(x_k - x_{k-1})
+\end{align*}
 \end{block}
 
-\begin{block}{Nesterov Accelerated (II)}
-
-Applicable when $f$ is $\beta$-smooth and $\alpha-$Strongly convex functions
-\begin{align}
-x_k = y_{k-1} - \frac{1}{\beta} \nabla f(y_{k-1})\\
-y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
-\end{align}
+\begin{block}{Nesterov's Accelerated Gradient (II)}
+For $f$ is $\beta$-smooth and $\alpha$-strongly convex:
+\begin{align*}
+x_k =& y_{k-1} - \frac{1}{\beta} \nabla f(y_{k-1})\\
+y_k =& x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
+\end{align*}
 
 \end{block}
 
@@ -223,7 +228,7 @@ y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
 
 
 \begin{frame}
-\frametitle{Nesterov Gradient Descent convergence rates}
+\frametitle{``Accelerated" Gradient Descent Convergence Rates}
 \fontbig
 \begin{center}
 
@@ -232,9 +237,9 @@ y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
  \hline
  Function Class   & GD  &  Nesterov  \onslide<2-> {& Lower bound }\\ [0.5ex] 
  \hline\hline
- $\beta$-S & $\frac{1}{t}$ & \textcolor{blue}{$\frac{1}{t^2}$} & \onslide<2->{ \textcolor{blue}{$\frac{1}{t^2}$} } \\ [1ex]
+ $\beta$-S & $\frac{1}{k}$ & \textcolor{blue}{$\frac{1}{k^2}$} & \onslide<2->{ \textcolor{blue}{$\frac{1}{k^2}$} } \\ [1ex]
  \hline
- $\beta$-S, $\alpha-$SC  &  $\exp\left(-\frac{t}{\kappa}\right)$ & \textcolor{red}{$\exp\left(-\frac{t}{\sqrt{\kappa}}  \right)$} & \onslide<2-> {\textcolor{red}{ $\exp\left(-\frac{t}{\sqrt{\kappa}}  \right)$} }\\ [1ex]
+ $\beta$-S, $\alpha-$SC  &  $\exp\left(-\frac{k}{\kappa}\right)$ & \textcolor{red}{$\exp\left(-\frac{k}{\sqrt{\kappa}}  \right)$} & \onslide<2-> {\textcolor{red}{ $\exp\left(-\frac{k}{\sqrt{\kappa}}  \right)$} }\\ [1ex]
  \hline
 \end{tabular}
 
@@ -248,8 +253,12 @@ y_k = x_k + \frac{\sqrt{\kappa} - 1}{\sqrt{\kappa}+1} (x_k - x_{k-1})
 \onslide<2-> {Not with a first order method \cite{DBLP:journals/ftml/Bubeck15}, \cite{nesterov2004introductory}.}
 \end{block}
 
+%*People are interested in the continuous limit of these methods. This kind of approach was started by Candes in their 2015 paper. They study the top row of the table. We provide results regarding the bottom part of the table. 
+
+
 \end{frame}
 
+\section{Continuous-Time Limits}
 
 \begin{frame}
 \frametitle{An ODE for Gradient Descent \cite{su2014differential}}
@@ -268,7 +277,7 @@ $x_k \approx X(\overbrace{k s}^{t})$ for the curve $X(t)$: \\
 $\textcolor{red}{t} (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2 \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(\frac{1}{\textcolor{red}{t}})$
 \end{block}
 
-\begin{block}{Lyapunov Functional (Strongly Convex) -- Us!}
+\begin{block}{Lyapunov Functional (Strongly Convex) -- [Us!]}
 $e^{- \textcolor{red}{\alpha} t} (f(X(t)) - f(x^*)) + \frac{1}{2}||X(t)-x^*||^2) \implies f(X(t))-f(x^*) \lesssim \mathcal{O}(e^{-\textcolor{red}{\alpha} t})$
 \end{block}
 
@@ -290,7 +299,7 @@ $x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
 \end{center}
 \begin{itemize}
     \item ``Small" $t$: large ``damping" $\implies$ fast decay to equilibrium
-    \item "Large" $t$: small "dampling" $\implies$ fast oscillations toward optima
+    \item ``Large" $t$: small ``damping" $\implies$ fast oscillations toward optima
 \end{itemize}
 \end{block}
 
@@ -309,7 +318,7 @@ Minimizing $f(X_1, X_2) = 0.02 X_1^2 + 0.005 X_2^2$.
 \end{frame}
 
 \begin{frame}
-\frametitle{An ODE for Nesterov Acceleration (II) Us!}
+\frametitle{An ODE for Nesterov Acceleration (II) [Us!]}
 \begin{block}{Limit of ``Accelerated" Gradient Descent (for Strongly Convex $f$ )}
 \begin{center}
 $x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
@@ -323,7 +332,7 @@ $x_k \approx X(\overbrace{k\sqrt{s}}^{t})$ for the curve $X(t)$: \\
 \end{block}
 
 
-\begin{block}{Lyapunov Functional (Strongly Convex) Us!}
+\begin{block}{Lyapunov Functional (Strongly Convex) [Us!]}
 \small{
 $e^{\textcolor{red}{\sqrt{\alpha}} t} (f(X(t)) - f(x^*)) + \frac{\alpha}{2} ||X+\frac{1}{\sqrt{\alpha}} \dot{X} - x^*||_2^2 \implies f(X(t)) - f(x^*) \lesssim \mathcal{O}(e^{-\textcolor{red}{\sqrt{\alpha}} t})$}
 \end{block}
@@ -331,51 +340,51 @@ $e^{\textcolor{red}{\sqrt{\alpha}} t} (f(X(t)) - f(x^*)) + \frac{\alpha}{2} ||X+
 \end{frame}
 
 \begin{frame}
-\frametitle{An ODE for Nesterov Acceleration (II) Us!}
+\frametitle{An ODE for Nesterov Acceleration (II) [Us!]}
+
 \begin{block}{$f(X) = \frac{\alpha}{2} X^2 \equiv$ Damped Harmonic Oscillator!}
 \begin{center}
-\vspace{-,25cm}
+\vspace{-.25cm}
 \begin{align*}
    \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \alpha X = 0 \implies 
 \end{align*}
 \vspace{-1cm}
+\only<1>{
 \begin{align*}
    X(t) = \begin{cases}
    & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \text{ when } \zeta < 1 \\
-   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov \ Coefficient } \\
+   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ \text{Nesterov Coefficient}} \\
    & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t})   \text{ when } \zeta > 1
    \end{cases}
-\end{align*}
+\end{align*}}
+
+\only<2>{
+\begin{align*}
+   X(t) \sim \begin{cases}
+   & e^{-\sqrt{\alpha} \zeta t}  \text{ when } \zeta < 1 \\
+   & e^{-\sqrt{\alpha} t + \log t} \text{ when } \zeta = 1 \ \textcolor{red}{ \text{Nesterov Coefficient}} \\
+   & e^{-\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1}) t}   \text{ when } \zeta > 1
+   \end{cases}
+\end{align*}}
+
 \end{center}
 \end{block}
 
-\begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping }
+\begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping (for $f(X) = \frac{\alpha}{2} X^2)  }
 \begin{itemize}
+\item $\zeta > 1$ Over-Damping -- Too Slow. 
+\item $\zeta = 1$ Critical-Damping -- \textcolor{red}{Just Right}.
+\item $\zeta < 1$ Under-Damping -- Too Much Oscillation.
+\end{itemize}
 \end{block}
 \end{frame}
 
 \begin{frame}
-\frametitle{An ODE for Nesterov Acceleration (II) Us!}
-\begin{block}{$f(X) = \frac{\alpha}{2} X^2 \equiv$ Damped Harmonic Oscillator!}
-\begin{center}
-\vspace{-,25cm}
-\begin{align*}
-   \ddot{X} + 2 \zeta \sqrt{\alpha} \dot{X} + \alpha X = 0 \implies 
-\end{align*}
-\vspace{-1cm}
-\begin{align*}
-   X(t) = \begin{cases}
-   & e^{-\zeta \sqrt{\alpha} t} \left( C \cos(\alpha(1-\zeta^2) t+\phi \right) \text{ when } \zeta < 1 \\
-   & e^{-\zeta \sqrt{\alpha} t}(A+B t) \text{ when } \zeta = 1 \ \textcolor{red}{ Nesterov \ Coefficient } \\
-   & A e^{ -(\sqrt{\alpha}(\zeta - \sqrt{\zeta^2-1})) t}+ B e^{ -(\sqrt{\alpha}(\zeta + \sqrt{\zeta^2-1}) t})   \text{ when } \zeta > 1
-   \end{cases}
-\end{align*}
-\end{center}
-\end{block}
+\frametitle{An ODE for Nesterov Acceleration (II) [Us!]}
 
 \begin{block}{Nesterov ``Momentum" Coefficient \textit{is} Critical Damping }
 \begin{figure}
-\includegraphics[width=0.4\linewidth]{Experiments/critical_damp_Nesterov.eps}
+\includegraphics[width=0.8\linewidth]{Experiments/critical_damp_Nesterov.eps}
 \caption{}
 \end{figure}
 
@@ -383,7 +392,7 @@ $e^{\textcolor{red}{\sqrt{\alpha}} t} (f(X(t)) - f(x^*)) + \frac{\alpha}{2} ||X+
 
 \end{frame}
 
-
+\section{Mirror Descent}
 
 \subsection{Accelerated Mirror Descent}
 
@@ -393,8 +402,8 @@ We want to extend these dimension-free convex optimization results to non-Euclid
 \begin{block}{Projected Gradient Descent}
 For the Euclidean projection,
 \begin{align*}
-x_{k+1} &= \arg\min_{x \in C}\|x_k -\alpha_k \nabla f(x_k) - x\|_2^2 \\
-&= \arg\min_{x \in C} <x, \nabla f(x_k)> + \frac{1}{\alpha_k}\frac{\|x - x_k\|_2^2}{2}
+x_{k+1} &= \arg\min_{x \in C}\|x_k - s_k \nabla f(x_k) - x\|_2^2 \\
+&= \arg\min_{x \in C} \langle x, \nabla f(x_k) \rangle + \frac{1}{s_k}\frac{\|x - x_k\|_2^2}{2}
 \end{align*}
 \end{block}
 Our Euclidean norm in this case is acting as a distance function for projection.
@@ -410,7 +419,7 @@ $$D_\Phi(x,y) = \Phi(x) - \Phi(y) - \nabla \Phi(y)^T(x-y)$$
     \includegraphics[width=0.9\textwidth]{Images/mda.png}
 \end{figure}
 \begin{block}{Mirror Descent Update}
-$$x_{t+1} = \arg\min_{x \in D} \eta g_t^Tx + D_{\Phi}(x,x_t)$$
+$$x_{k+1} = \arg\min_{x \in D} \langle \nabla f(x_k), x \rangle + \frac{1}{s_k}D_{\Phi}(x,x_k)$$
 \end{block}
 \end{frame}
 
@@ -420,52 +429,100 @@ $$x_{t+1} = \arg\min_{x \in D} \eta g_t^Tx + D_{\Phi}(x,x_t)$$
 % - Mirror Descent:
 \subsection{Mirror Descent ODE}
 \begin{frame}
-\frametitle{Continuous time mirror ODE}
+\frametitle{ODE for Accelerated Mirror Descent \cite{krichene2015accelerated}}
 We generalize, using the Lyapunov function as our starting point
-\begin{align*}
-\mathcal{E}(t) = \frac{t^2}{r} (f(X) - f^*) + \frac{r}{2} \|X+\frac{t}{r}\dot X - x^* \|^2
-\end{align*}
-\begin{block}{Generalized Lyapunov}
-\begin{align*}
-V(X(t),Z(t),t) = \frac{t^2}{r} (f(X(t)) - f^*) + r D_{\psi^*} (Z(t), z^*) 
-\end{align*}
+\[V(X(t),t) = t^2 (f(X(t)) - f^*) +  2 \|X(t)+\frac{t}{2}\dot X(t) - x^* \|^2\]
+\begin{block}{Generalized Lyapunov \cite{krichene2015accelerated}}
+\[V(X(t),Z(t),t) =t^2(f(X(t)) - f^*) + 4 D_{\psi^*} (Z(t), z^*) \]
 \end{block}
-chose dynamics $\dot Z = -\frac{t}{r} \nabla f(X)$, and also $\nabla \psi^*(Z) = X + \frac{t}{r} \dot X$ 
-\begin{block}{Accelerated Mirror ODE}
-\begin{align*}
-\dot X = \frac{r}{t} (\nabla \psi^*(Z) - X),\quad \dot Z = -\frac{t}{r} \nabla f(X)
+\only<1> {Ensuring the properties of a Lyapunov function
+\[\frac{d}{dt}V = 2 t (f(X) - f^*) + \textcolor{purple}{t^2} \langle \textcolor{red}{\nabla f(X)}, \textcolor{blue}{\dot X}\rangle + 4\langle\textcolor{red}{ \dot Z }, \textcolor{blue}{\nabla \psi^*(Z) - \nabla\psi^*(z^*)\rangle }\]
+chose dynamics on dual variable \textcolor{red}{$\dot Z = -\frac{t}{2} \nabla f(X)$} and \textcolor{blue}{$\nabla \psi^*(Z) = X + \frac{t}{2} \dot X$} 
+\[\frac{d}{dt}V \leq 0\]}
+\only<2> {\begin{block}{Accelerated Mirror Descent ODE System \cite{krichene2015accelerated}}\begin{align*}
+&\dot X = \frac{2}{t} (\nabla \psi^*(Z) - X)\\
+&\dot Z = -\frac{t}{2} \nabla f(X)\\
+&X(0) = x_0,~ Z(0) = z_0,~\nabla\psi^*(z_0) = x_0
 \end{align*}
-\end{block}
+\end{block}}
 \end{frame}
 
 \begin{frame}
-\frametitle{Accelerated Mirror Descent Algorithm}
-\begin{block}{(Forward/Backwards) Euler Method}
-\begin{align*} x_{k+1}  &= \lambda_k \nabla \psi^*(z_k) + (1-\lambda_k) x_{k}\\
-z_{k+1}& = z_k -\frac{ks}{r} \nabla f(x_{k+1}) 
-\end{align*}
-If we do something special ** with $\psi$ and $\psi^*$ we can recover that for $\tilde z_{k+1} = \nabla \psi^*(z_{k+1} )$
-\[\tilde z_{k+1} = \argmin_{x\in\mathcal{X}} \frac{ks}{r} \langle \nabla f(x_{k+1}), x \rangle + D_\psi (x, \tilde z_k)\]
+\frametitle{Accelerated Mirror Descent Discretization  \cite{krichene2015accelerated}}
+A mixed forward/backward Euler scheme where $t_k = k\sqrt{s}$ and $\dot X(t_k) = \frac{X(t_k + \sqrt{s}) - X(t_k)}{\sqrt{s}}$
+\begin{block}{Naive discretization via Euler method}
+\only<1> {\begin{align*} x_{k+1}  &= \lambda_k \nabla \psi^*(z_k) + (1-\lambda_k) x_{k},\quad \lambda_k =\frac{2}{2+k}\\
+z_{k+1}& = z_k -\frac{ks}{2} \nabla f(x_{k+1}) 
+\end{align*}}
+\only<2> {\begin{align*} x_{k+1}  &= \lambda_k \tilde z_k + (1-\lambda_k) x_{k},\quad \lambda_k =\frac{2}{2+k}\\
+\tilde z_{k+1} &= \text{arg}\min_{x\in\mathcal{X}} \frac{ks}{2} \langle \nabla f(x_{k+1}), x \rangle + D_\psi (x, \tilde z_k)\\
+\end{align*}}
 \end{block}
-Modified Lyapunov function
-\begin{block}{Proposed Discretization}
-\[\tilde x_k = \argmin_{x\in\mathcal X} \gamma s \langle \nabla f(x_k), x \rangle + R(x,x_k) \]
-\end{block}
+Modified energy function $E_k = V(x_k,z_k,k\sqrt{s})$
+\[E_{k+1} - E_k \leq 0 +\textcolor{red}{ D_{\psi^*}(z_{k+1},z_k)}\]
+not readily shown to be a Lyapunov function
 \end{frame}
 
-\section{Plots}
+\begin{frame}
+\frametitle{Accelerated Mirror Descent Algorithm  \cite{krichene2015accelerated}}
+\begin{block}{Accelerated Mirror Descent Algorithm \cite{krichene2015accelerated}}
+\begin{align*} 
+x_{k+1}  &= \lambda_k \tilde z_k + (1-\lambda_k) \tilde x_{k},\quad \lambda_k =\frac{2}{2+k}\\
+\tilde z_{k+1} &= \text{arg}\min_{x\in\mathcal{X}} \frac{ks}{2} \langle \nabla f(x_{k+1}), x \rangle + D_\psi (x, \tilde z_k)\\
+\tilde x_{k+1}&=\text{arg}\min_{x\in\mathcal{X}}\gamma s \langle \nabla f(x_{k+1}), x \rangle + R (x, x_{k+1})\\
+\end{align*}
+\end{block}
+Modified energy function $\tilde E_k = V(\tilde x_k,z_k,k\sqrt{s})$
+\[\tilde E_{k+1} - \tilde E_k \leq 0\]
+\end{frame}
+
+\begin{frame}
+\frametitle{Mirror Descent on Simplex Constrained Problems}
+
+\begin{columns}
+\begin{column}{0.2\textwidth}
+\includegraphics[width=0.8\linewidth]{Images/simplex.png}
+\end{column}
+\begin{column}{0.8\textwidth}  %%<--- here
+    Simplex constrained problems are useful in tomography reconstruction, distributed routing, online learning, adversarial games
+    
+\end{column}
+\end{columns}
+%The mirror descent framework can be applied to simplex-constrained problems (tomography reconstruction, distributed routing, online learning, adversarial games). 
+\begin{block}{Mirror Map: Negative Entropy on Simplex}
+\begin{align*}
+    &\Phi(x) = \sum_{i=1}^n x_i \log x_i + \delta (x|\Delta), \qquad \Phi^*(z) = \log \left(\sum_{i=1}^n e^{z_i} \right)\\
+    &\nabla \Phi^*(z)_i = (\nabla \Phi)^{-1}_i = \frac{e^{z_i}}{\sum_{j=1}^ne^{z_j}}
+\end{align*}
+\end{block}
+*smooth w.r.t. $\| . \|_\infty$
+%Then $\psi^*$ is smooth w.r.t. $\| . \|_\infty$. For the regularization step, use $R(x,y) = D_\phi(x,y)$, with $\phi$ the smoothed negative entropy function
+%\[\phi(x) = \epsilon \sum_{i=1}^n (x_i+\epsilon)\log(x_i+\epsilon)+\delta(x|\Delta)\]
+\end{frame}
+
 \begin{frame}
 \frametitle{Numerical Experiments}
-Simplex constrained problems, list mirror map and divergence
-
-figure of quadractic plots
+Mirror Descent for the simplex constrained log-sum-exp function with $x\in\mathbb{R}^3$, $I=100$ $f(x) = \log \left( \sum_{i=1}^I \langle a_i,x\rangle + b_i \right)$.
+\begin{center}
+\includegraphics[width=0.87\linewidth]{Experiments/amd-all.eps}
+\end{center}
 \end{frame}
 
 \begin{frame}
-\frametitle{Numerical Experiments}
-Simplex constrained problems, list mirror map and divergence
+\frametitle{Conclusion}
 
-figure of log-sum-exp plots and diverging
+\begin{block}{Key Takeaways}
+\begin{enumerate}
+    \item Reviewed accelerated first-order methods in discrete and continuous time
+    \item Extended results in the Euclidean case to strongly convex functions
+    \item Investigated mirror descent in the continuous and discrete time settings
+\end{enumerate}
+\end{block}
+
+\huge{
+How do we discretize from Continuous-Time ODE's $\to$ Useful Optimization Algorithms?
+}
+
 \end{frame}
 
 \begin{frame}[t, allowframebreaks]
