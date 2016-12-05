@@ -28,10 +28,10 @@ x0 = mir.grad_potential(z0)
 horizon = 2500
 
 # continuous time ODE
-ts, xs, zs, fs, xstar  = mir.run_quad_mirror_ode(z0, horizon) # mir.run_logsum_mirror_ode(z0, horizon) #
+ts, xs, zs, fs, xstar  = mir.run_quad_mirror_ode(z0, horizon) #mir.run_logsum_mirror_ode(z0, horizon) #
 fstar = f(xstar)
 conts_time = fs[0::10]-fstar
-x1x2 = xs[0::10,:]
+xconts = xs[0::10,:].transpose()
 
 def fMinusFStar(x):
     return f(x) - fstar
@@ -52,7 +52,7 @@ s2 = s
 
 # descent methods
 amd = ac.AcceleratedMethod(f, gradf, p1, p2, s1, s2, r, x0, 'accelerated descent')
-amddiv = ac.AcceleratedMethod(f, gradf, p1, p2, s1, s2, r, x0, 'accelerated divergent descent', divergent=True)
+amddiv = ac.AcceleratedMethod(f, gradf, p1, p2, s1, s2, r, x0, 'accelelerated Euler descent', divergent=True)
 md = ac.MDMethod(f, gradf, p2, s2, x0, 'mirror descent')
 methods = [md,
            amd,
@@ -77,12 +77,38 @@ for m in ms:
         x = np.hstack(xMat)
         xs[m][:, k] = toSimplex(x)
         method.step()
+xc = np.zeros((2,horizon))
+for k in range(horizon):
+    xc[:,k] = toSimplex(xconts[:,k])
+
+colors = ['b', 'g', 'r', 'c', 'm']
+
+plt.plot(range(0,horizon), np.log(conts_time), linestyle="solid", linewidth = 1.0, color="purple",label='ODE')
+for m in ms:
+    plt.scatter(range(0,horizon),np.log(values[m]), marker='+', color=colors[m], label=methods[m].name)
+plt.xlabel("$k$", fontsize=24)
+plt.ylabel("Log Error", fontsize=24)
+plt.xlim([1, 800])
+plt.ylim([-25, 0])
+plt.legend(loc=1)
+plt.show()
+
+plt.plot(xc[0,:], xc[1,:], color='purple', linestyle="solid", linewidth = 1.0,label='ODE')
+for m in ms:
+    plt.scatter(xs[m][0,:], xs[m][1,:], marker='+', color=colors[m],label=methods[m].name)
+plt.xlabel("$X_1$", fontsize=24)
+plt.ylabel("$X_2$", fontsize=24)
+plt.xlim([-0.05, 0.05])
+plt.ylim([-0.05, 0.05])
+plt.legend(loc=3)
+plt.show()
+
+
 
 # plotting
 figsize = (12, 8)
 min_value = max(1e-11, min([np.nanmin(values[m]) for m in ms]))
 max_value = max([np.nanmax(values[m]) for m in ms])
-colors = ['b', 'g', 'r', 'c', 'm']
 n1 = 30
 
 def setAxisZoom(ax, points, combineDeltas):
