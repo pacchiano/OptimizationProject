@@ -1,10 +1,38 @@
 README
 
-1. Experiments and plot creation
+Project Title: Continuous-time Perspectives on Accelerated First-Order Methods
+Team Members:
+	- Nilesh Tripuraneni (nilesh_tripuraneni@berkeley.edu, 3032089919)
+	- Sarah Dean (sarahdean@eecs.berkeley.edu, 3031893242)
+	- Jeffrey Chan (chanjed@berkeley.edu, 24988067)
+	- Aldo Pacchiano (pacchiano@berkeley.edu, 26995108)
 
--- Candes Plots
+Contents:
+	- README 
+	
+	- report.pdf: The project report
+	
+	- Plots folder: all image files for figures in report
+		- quadratic_traj_compare_annealed.eps, Figure 2
+		- quadratic_errors_compare_annealed.eps, Figure 3
+		- quadratic_traj_compare_annealed_r1.eps, Figure 4
+		- least_squares_errors_compare.eps, Figure 5
+		- lasso_fat_design_errors_compare.eps, Figure 6
+		- logistic_regression_errors_compare.eps, Figure 7
+		- critical_damp_Nesterov.eps, Figure 8
+		- amd-quadratic-logerror.eps, Figure 10
+		- amd-logsumexp-logerror.eps, Figure 11
+		- amd-quadratic-paths.eps, Figure 12
+		- amd-logsumexp-paths.eps, Figure 13
+	
+	- Experiments folder
+		- CandesODE.py runs the Nesterov (I) ODE
+		- ConstantODE.py runs the Nesterov (II) ODE
+		- unstableTraj.py generates unstable ODE plots (r<3)
+		- critical_damped.py runs experiments related to critically damped oscillator
+		- target_funcs.py contains objective functions for above files
+		- utils.py contains utilities for above files
+		- MirrorODE.py runs Accelerated Mirror Descent ODE and contains objective functions
+		- MirrorPlotting.py generates numerical experiments for AMD, relies on modified AcceleratedMirrorDescent library. Used the test/SimplexQuadTest and amd/SimulationSimplex.py in that library as a reference.
 
--- Strongly convex setting
-
--- Mirror Descent Plots: MirrorPlotting.py
-	This file relies on MirrorODE.py and a slightly modified version of the Accelerated Mirror Descent code library by Walid Krichene (https://github.com/walidk/AcceleratedMirrorDescent). The modifications are to the file AcceleratedMethods.py to include a non-provably converging (and potential diverging) method flag. The plotting code and interfacing used the test/SimplexQuadTest and amd/SimulationSimplex.py as a reference for writing the file MirrorPlotting.py
+	- AcceleratedMirrorDescent modified repository: modified version of the Accelerated Mirror Descent code library by Walid Krichene (https://github.com/walidk/AcceleratedMirrorDescent). The modifications are to the file AcceleratedMethods.py to include a non-provably converging (and potential diverging) method flag.
