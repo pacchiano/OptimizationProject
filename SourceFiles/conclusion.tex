@@ -1,20 +1,26 @@
-In this project we have given a review of results in the intersection of the study of continuous time ODEs with first order methods for convex optimization procedures. We review the basic results in gradient descent that establish convergence and give lower bounds. We then review a well known acceleration method, and examine it from the continuous time perspective. We establish the equivalence of the continuous time results.
+In this project we have investigated the connections between continuous-time ODEs and first-order optimization algorithms.
+\begin{itemize}
+\item We began by establishing basic results on the convergence rates of first order methods, in particular establishing oracle lower bounds on the efficiency of first-order methods \citep{DBLP:journals/ftml/Bubeck15}. We then review the celebrated Nesterov accelerated gradient methods (both  (I) and (II)), which achieve these oracle lower bound rates for weakly and strongly convex functions \citep{nesterov1983method,nesterov2004introductory}. 
 
-We then extend fron the Lyapunov perspective in continuous time to recover Accelerated Mirror descent, a family of accelerated methods for the non-euclidean domain. We note the specifics necessary when performing the discretization procedure, and show the equivalence with continuous time. 
+\item We then give a summary of work by \citet{su2014differential} examining the continuous-time limit of gradient descent and the Nesterov (I) ODE highlighting insights and generalizations of discrete-time algorithms one can extract from the continuous-time perspective. 
 
-\subsection{Variational framework in continuous time}
-The framework of using a continuous time ODE and drawing relationships to these methods can fully generalize and unite the various attempts. 
+\item We then derive the continuous-time limit of Nesterov (II) accelerated gradient method (applicable to strongly convex functions) which is a novel result. We further provide insights into this the Nesterov (II) establishing a connection between "critically" damped harmonic oscillators and the Nesterov (II) ODE.  
 
-Summarize major unifying perspectives from this paper
+\item We then review the mirror descent literature showing how to extend gradient descent into the non-Euclidean setting using a more general notion of distance via the Bregman divergence. Using the continuous-time Lyapunov perspective as a starting place, we show how \citet{krichene2015accelerated} recovers an accelerated mirror descent ODE, highlighting the potential of continuous-time perspectives to be used in algorithm derivation. We note the specific ``tricks'' necessary when performing the discretization procedure to recover convergence rates, and present numerical examples.
+\end{itemize}
 
-\subsubsection{Insights from continuous time}
-Mention the restart method, see the  
+  
+The analytic usefulness of continuous time can be seen in generality by the unifying theory recently presented in \citet{wibisono2016variational}. \citet{wibisono2016variational} present the \textit{Bregman Lagrangian}, which captures existing accelerated mirror descent algorithms under a single framework. In this perspective existing discrete-time accelerated methods can be viewed as a discretization method of a single underlying family of curves in space-time. 
 
-\subsubsection{downsides of continuous time}
-mention examples where the continuous time perspective loses all the interesting information
+While this unifying perspective in continuous time has theoretical implications the ultimate goal is to understand accelerated algorithms as a ``simple'' discretization of their underlying continous-time description. Finding useful, novel discretizations and identifying a discretization ``principle" explaining the relationship between existing discrete-time algorithms their continuous-time ODEs is the main difficulty. As illustrated in our derivation of accelerated mirror descent, constructing rate-preserving discretizations is non-trivial and requires the introduction of an auxiliary sequence which simply mimics idea from discrete-time accelerated methods (and is no more obvious than the original ideas used to construct accelerated gradient methods). This question was examined in \citet{wilson2016lyapunov}, but it remains an open question and important direction for further research to find an underlying principle to understand \textit{how} to discretize continuous-time gradient flows in a rate-preserving manner.
 
-\subsection{Discretization}
-Throughout the analysis, it becomes clear that there are particularities having to do with the way these continuous time functions are decreased. Vastly different algorithms in discrete time can have the same continuous time limit. Need for principles in discretization procedure (ashia's newest paper).
+Another interesting direction for future research is to explore the connection between continuous-time analyses of optimization methods and a recent line of work using analog circuits to perform optimizations. This approach using analog circuits to perform optimization is particularly attractive in model predictive control, where optimization problems must be solved in real time. These methods seek to design analog circuits whose equilibria will be the optimum of, for example, a quadratic program of the inputs \citep{vichik2016stability}. This area could also tie in nicely in with continuous-time analyses of optimization methods since these analog circuits effectively operate in real ``continuous-time".
 
-\subsection{Conclusion}
-paragraph summary of the paper and the work that we did followed by paragraph summary of the major insights into the field as a whole
+\begin{comment}
+A recent work by \citet{wilson2016lyapunov} explores discretization possibilities for the general family of accelerated ODEs \ref{generalode}. By approaching the discretization as a combination of forward and backward Euler methods, there is a principled way to generate and analyze algorithms. While the careful discretization does result in algorithms that preserve the convergence rate under certain optimality conditions, the sub-problems involved in the backward Euler steps are intractable. Therefore, transforming the continuous time ODE system into a discrete-time algorithm that is both tractable and preserves the necessary properties remains elusive.
+
+
+The difference observed between discrete algorithms and continuous time ODEs is not a surprise. After all, depending on the limiting factors, continuous time perspectives can lose interesting behavior seen in discrete time. This is particularly noticeable in the case of higher order methods: $p$th-order $p+1$ regularized methods are first order ODEs in their limit \citep{wibisono2016variational}. More broadly, it is well established it the theory of dynamical systems and complexity that while first order discrete-time system can display chaotic dynamics, continuous-time system must have at least three state space variables \citep{lorenz1992complex}.
+\end{comment}
+
+
