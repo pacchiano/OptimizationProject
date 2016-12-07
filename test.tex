@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage{lipsum}
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}%
+  \normalfont \topsep6\p@\@plus6\p@\relax
+  \list{}{\leftmargin=4em
+          \rightmargin=\leftmargin
+          \settowidth{\itemindent}{\itshape#1}%
+          \labelwidth=\itemindent
+          % the following line is not needed with amsart, but might be with other classes
+          \parsep=0pt \listparindent=\parindent 
+  }
+  \item[\hskip\labelsep
+        \itshape
+    #1\@addpunct{.}]\ignorespaces
+}{%
+  \popQED\endlist\@endpefalse
+}
+\makeatother
+\begin{document}
+\lipsum[1]
+
+\begin{proof}
+\lipsum*[2]
+\end{proof}
+
+\lipsum[3]
+
+\end{document}

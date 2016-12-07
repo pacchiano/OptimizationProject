@@ -1,5 +1,7 @@
 \documentclass[english]{article}
 \usepackage[margin=1in]{geometry}
+\usepackage[parfill]{parskip}
+
 
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath, amsfonts}
@@ -12,6 +14,8 @@
 
 \usepackage{babel,blindtext}
 
+\usepackage{lipsum}
+
 
 \usepackage{verbatim}
 \usepackage{algorithm}
@@ -23,8 +27,10 @@
 \usepackage{verbatim}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{caption}
 
 \usepackage{tabu}
+\usepackage[round]{natbib}
 
 \usepackage{lingmacros}
 \usepackage{tree-dvips}
@@ -44,46 +50,62 @@
 \newtheorem{definition}{Definition}
 \newtheorem{corollary}{Corollary}
 %\newtheorem{question}{Question}
-\newcommand{\proofstart}{{\bf Proof\hspace{2em}}}
+\newenvironment{Proof}{
+  \leftskip=1cm\rightskip=1cm
+}
+
+
+
+
+\newcommand{\proofstart}{{\bf Proof\hspace{1em}} 
+\begin{Proof}
+}
+\newcommand{\proofend}{\hspace*{\fill}\mbox{$\Box$}  
+\end{Proof}
+}
 \newcommand{\tset}{\mbox{$\cal T$}}
-\newcommand{\proofend}{\hspace*{\fill}\mbox{$\Box$}}
 \newcommand{\bfm}[1]{\mbox{\boldmath $#1$}}
 
 
 
 \title{EE227BT Project:
-Understanding the Continuous-Time Limit of Nesterov Acceleration}
+Continuous-time Perspectives on Accelerated First-Order Methods}
 \author{Nilesh Tripuraneni (nilesh\_tripuraneni@berkeley.edu, 3032089919)\\ Sarah Dean (sarahdean@eecs.berkeley.edu, 3031893242)\\ Jeffrey Chan (chanjed@berkeley.edu, 24988067)\\ Aldo Pacchiano (pacchiano@berkeley.edu, 26995108)}
-
-
 
 \begin{document}
 
 
 \maketitle 
+\begin{abstract}
+   A recent line of research initiated in \citet{su2014differential} derived an exact, continuous-time limit of a particular family of Nesterov's accelerated gradient methods applicable to weakly convex functions. In the present work we both review and advance the connection between accelerated first-order gradient methods for optimization and their continuous-time counterparts.
+   The primary contributions of this project are to firstly extend results of \citet{su2014differential} to a different family of Nesterov accelerated methods which are applicable to strongly convex functions. We show exponential convergence rates for gradient descent and the alternative Nesterov scheme in the strongly convex setting, and then we provide an intuitive perspective connecting the newly derived continuous-time limit to the physics of the damped harmonic oscillator. Second, we  
+   investigate the generalization of the original Nesterov scheme investigated in \citet{su2014differential} to non-Euclidean geometries -- i.e. ``accelerated" mirror descent -- which has been studied in \citet{krichene2015accelerated}. This includes reviewing the original mirror descent algorithm proposed by \citet{blair1985problem} and using the insights from the Neseterov continuous-time ODE as a starting point for understanding the accelerated mirror descent algorithm proposed by \citet{krichene2015accelerated} in a variety of numerical settings. It remains an open problem to produce a similar accelerated mirror descent convergence rate in the strongly convex case.
+\end{abstract}
 
-\section{Introduction}
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction and Background}
 
 \input{SourceFiles/bubeck}
 
-
-\section{Accelerated gradient descent }
-
+\section{Continuous-Time Perspectives}
 
 \input{SourceFiles/accelerated-gradient}
 
-\section{Non-Euclidean setting: Mirror Descent}
+\section{Non-Euclidean Setting: Mirror Descent}
 
 \input{SourceFiles/mirror-notes}
 
-\section{Mirror Descent in Continuous Time}
+\section{Non-Euclidean Continuous-Time Perspectves}
 \input{SourceFiles/mirror-descent-ODE}
 
-\section{Discussion and conclusion}
+\section{Conclusion and Future Research}
 \input{SourceFiles/conclusion}
 
 
-\bibliographystyle{unsrt}
+\bibliographystyle{plainnat}
 \bibliography{refs}
 
 \end{document}
