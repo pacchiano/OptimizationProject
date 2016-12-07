@@ -4,8 +4,9 @@ import math
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-from target_funcs import f_quad, grad_f_quad
-from utils import plot_mult_traj, plot_errors
+from target_funcs import f_quad, grad_f_quad, grad_least_squares, step_least_squares, lasso_fat_design, lasso_fat_design_gradient, grad_logistic_regression, logistic_regression, least_squares
+from utils import plot_mult_traj, plot_errors, plot_errors_raw
+
 
 def Nesterov_ODE(X_0, t=300.0, r=3.0, nabla_f=None):
     # We order such \dot{X} is first and \dot{Y} is second
@@ -67,6 +68,39 @@ def run_ODE_and_GD():
     titles = ["ODE", "s=2.0", "s=0.25"]
     plot_mult_traj(X1, X2, X3, titles, show=True, save=True, path="./quadratic_traj_compare_annealed.eps")
     plot_errors(t1, X1, t2, X2, t3, X3, titles, show=True, save=True, path="./quadratic_errors_compare_annealed.eps")
+
+def run_generalizedNesterov():
+    time = 10
+    time = 5
+
+    #target_nabla = grad_least_squares
+    #target_nabla = lasso_fat_design_gradient
+    target_nabla = grad_logistic_regression
+
+    #target_function = least_squares
+    #target_function = lasso_fat_design
+    target_function = logistic_regression
+
+    #plot_name = "least_squares_errors_compare"
+    #plot_name = "lasso_fat_design_errors_compare"
+    plot_name = "logistic_regression_errors_compare"
+
+    if target_nabla == lasso_fat_design_gradient or target_nabla == grad_least_squares:
+        X_i = np.zeros((500)) ## for lasso_fat_design
+
+    else:
+        X_i = np.zeros((100))
+    dim = X_i.shape[0]   
+    t1, X1, Y1 = Nesterov_GD(X_i, s=step_least_squares, t=time, r = 3.0, nabla_f=target_nabla)
+    print "First series done"
+    t2, X2, Y2 = Nesterov_GD(X_i, s=step_least_squares, t=time, r = 4.0, nabla_f=target_nabla)
+    print "Second series done"
+    t3, X3, Y3 = Nesterov_GD(X_i, s=step_least_squares, t=time, r = 5.0, nabla_f=target_nabla)
+    print "Third series done"
+    titles = ["r=3.0", "r=4.0", "r=5.0"]
+    #plot_errors_raw( t1, X1, t2, X2, t3, X3, titles, show=True, save=True, path="./least_squares_errors_compare_annealed.eps")
+    plot_errors_raw( t1, X1, t2, X2, t3, X3, titles, show=True, save=True, path="./new_plots/" + plot_name + ".eps", target_function = target_function)
+
 
 
 def main():
